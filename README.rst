@@ -1,5 +1,10 @@
-If this message is still the README, the package doesn't have a stable
-version yet. Check other branches for release candidates.
+.. image:: https://travis-ci.org/wizardsoftheweb/git-ls-anytree.svg?branch=master
+    :target: https://travis-ci.org/wizardsoftheweb/git-ls-anytree
+
+``git-ls-anytree``
+------------------
+
+TODO
 
 References
 ----------
@@ -23,4 +28,5 @@ I have to print the literal followed by the link
 -  `ISC License <https://opensource.org/licenses/ISC>`__
 -  ``.editorconfig``: `source <http://editorconfig.org/>`__
 -  ``tests/``: `source <https://docs.pytest.org/en/latest/getting-started.html>`__
+
 

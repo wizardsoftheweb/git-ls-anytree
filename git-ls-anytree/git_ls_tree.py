@@ -1,8 +1,6 @@
 from anytree import NodeMixin, RenderTree
 from git_ls_tree_node import GitLsTreeNode
 from os import getcwd
-from os.path import basename, split
-from re import match
 from subprocess import check_output
 
 class GitLsTree(GitLsTreeNode):

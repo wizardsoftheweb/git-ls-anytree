@@ -5,9 +5,25 @@ from os.path import basename
 from re import match
 
 class GitLsTreeNode(NodeMixin):
+    """This class holds the methods necessary to create a node in the tree.
+
+    It extends NodeMixin, adding anytree functionality. It assigns defaults, parses the raw git output, and can search its children for specific nodes.
+    """
+
+    """This regex is used to parse the raw git output.
+
+    `Official docs <https://git-scm.com/docs/git-ls-tree#_output_format>`__
+    """
     FULL_GIT_PATTERN = r'^(?P<file_mode>\d{6})\s+(?P<item_type>blob|tree)\s+(?P<git_object>\w+)\s+(?P<git_object_size>[\d\-]+)\s+(?P<relative_path>.*)$'
 
     def __init__(self, raw_git_output='', name='', parent=None):
+        """Simple ctor; delegates processing to child methods
+
+        Parameters:
+        raw_git_output - The raw line from git (most likely via STDOUT)
+        name - An optional name (mostly just for the root node)
+        parent - The parent NodeMixin
+        """
         super(GitLsTreeNode, self).__init__()
         self.file_mode = ''
         self.item_type = ''
@@ -22,6 +38,11 @@ class GitLsTreeNode(NodeMixin):
         self.children = []
 
     def process_raw_git_output(self, raw_git_output):
+        """Parses the git output into instance members
+
+        Parameters:
+        raw_git_output - The raw line from git (most likely via STDOUT)
+        """
         self.raw = raw_git_output
         processed_groups = match(GitLsTreeNode.FULL_GIT_PATTERN, raw_git_output)
         if processed_groups:
@@ -35,6 +56,13 @@ class GitLsTreeNode(NodeMixin):
             self.exploded_path = convert_path_to_list(self.relative_path)
 
     def walk_to_parent_node(self, exploded_path):
+        """Walks the branch until exploded_path is empty
+
+        This assumes that git ls-tree has been called with -rt, to recurse everywhere and always print trees. It also assumes the tree is created from the parent directories downward.
+
+        Parameters:
+        exploded_path - The path list to search for
+        """
         if 1 == len(exploded_path):
             return self
         else:
@@ -44,4 +72,3 @@ class GitLsTreeNode(NodeMixin):
                     return potential_parent
                     # print potential_parent
             raise BrokenTreeError(self, current_basename)
-

@@ -1,4 +1,11 @@
 class BrokenTreeError(Exception):
+    """Raised when an unknown child appears while processing a tree
+
+    Attributes:
+        owning_node -- The node currently searching its children
+        unknown_child -- The file or directory that cannot be found
+    """
+
     def __init__(self, owning_node, unknown_child):
         self.owning_node = owning_node
         self.unknown_child = unknown_child

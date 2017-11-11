@@ -6,7 +6,8 @@ from subprocess import check_output
 class GitLsTree(GitLsTreeNode):
     """This class builds an anytree from git ls-tree
 
-    Using the provided tree-ish, the class queries git, explodes STDOUT, and builds an anytree from the result
+    Using the provided tree-ish, the class queries git, explodes STDOUT, and
+    builds an anytree from the result
     """
 
     def __init__(self, tree_ish='HEAD', path_in_tree_ish='', working_dir=getcwd()):
@@ -27,7 +28,9 @@ class GitLsTree(GitLsTreeNode):
         return tree_ish + ((':' + path_in_tree_ish) if path_in_tree_ish else '')
 
     def query_tree_ish(self):
-        """Spawns a subprocess to in working_dir to run git ls-tree; strips and splits the result"""
+        """Spawns a subprocess to in working_dir to run git ls-tree; strips and
+        splits the result
+        """
         raw_blob = check_output(
             ['git', 'ls-tree', self.name, '-rtl'],
             cwd=self.working_dir

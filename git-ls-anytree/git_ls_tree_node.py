@@ -7,7 +7,8 @@ from re import match
 class GitLsTreeNode(NodeMixin):
     """This class holds the methods necessary to create a node in the tree.
 
-    It extends NodeMixin, adding anytree functionality. It assigns defaults, parses the raw git output, and can search its children for specific nodes.
+    It extends NodeMixin, adding anytree functionality. It assigns defaults,
+    parses the raw git output, and can search its children for specific nodes.
     """
 
     """This regex is used to parse the raw git output.
@@ -58,7 +59,9 @@ class GitLsTreeNode(NodeMixin):
     def walk_to_parent_node(self, exploded_path):
         """Walks the branch until exploded_path is empty
 
-        This assumes that git ls-tree has been called with -rt, to recurse everywhere and always print trees. It also assumes the tree is created from the parent directories downward.
+        This assumes that git ls-tree has been called with -rt, to recurse
+        everywhere and always print trees. It also assumes the tree is created
+        from the parent directories downward.
 
         Parameters:
         exploded_path - The path list to search for

@@ -39,7 +39,7 @@ class ConstructorUnitTests(GitLsTreeTestBase):
 
     def test_finalized_tree_ish(self):
         self.tree_instance = GitLsTree()
-        self.mock_finalize.assert_called_once_with('HEAD', '')
+        self.mock_finalize.assert_called_once_with('HEAD', [])
         self.mock_finalize.reset_mock()
         self.tree_instance = GitLsTree(self.universal_tree_ish, self.universal_working_dir)
         self.mock_finalize.assert_called_once_with(self.universal_tree_ish, self.universal_working_dir)
@@ -67,7 +67,7 @@ class FinalizeTreeIshUnitTests(GitLsTreeTestBase):
         assert(self.universal_tree_ish == self.tree_instance.finalize_tree_ish(self.universal_tree_ish, ''))
 
     def test_with_subpath(self):
-        assert(u"'%s:%s' == self.tree_instance.finalize_tree_ish(self.universal_tree_ish, self.universal_working_dir)" % (self.universal_tree_ish, self.universal_working_dir))
+        assert(u"'%s %s' == self.tree_instance.finalize_tree_ish(self.universal_tree_ish, self.universal_working_dir)" % (self.universal_tree_ish, self.universal_working_dir))
 
 class QueryTreeIshUnitTests(GitLsTreeTestBase):
     number_of_git_lines = 20

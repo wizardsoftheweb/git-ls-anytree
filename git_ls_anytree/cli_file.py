@@ -1,12 +1,10 @@
 from git_ls_tree import GitLsTree
+from __version__ import __version__
 from os import getcwd
 from os.path import join
 from sys import argv
 
 import argparse
-
-with open(join('git_ls_anytree', 'VERSION')) as version_file:
-    __version__ = version_file.read().strip()
 
 def cli(passed_args=argv[1:]):
     parser = argparse.ArgumentParser(

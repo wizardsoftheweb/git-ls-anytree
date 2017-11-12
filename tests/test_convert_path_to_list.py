@@ -5,7 +5,6 @@ simple_directory = 'path/to/directory'
 
 def test_basename_only():
     assert(convert_path_to_list(simple_basename) == [simple_basename])
-    print convert_path_to_list('/' + simple_basename)
     assert(convert_path_to_list('/' + simple_basename) == [simple_basename])
 
 def test_simple_directory():

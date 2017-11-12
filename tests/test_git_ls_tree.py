@@ -66,7 +66,7 @@ class FinalizeTreeIshUnitTests(GitLsTreeTestBase):
         assert(self.universal_tree_ish == self.tree_instance.finalize_tree_ish(self.universal_tree_ish))
         assert(self.universal_tree_ish == self.tree_instance.finalize_tree_ish(self.universal_tree_ish, ''))
 
-    def test_with_reference_only(self):
+    def test_with_subpath(self):
         assert(u"'%s:%s' == self.tree_instance.finalize_tree_ish(self.universal_tree_ish, self.universal_working_dir)" % (self.universal_tree_ish, self.universal_working_dir))
 
 class QueryTreeIshUnitTests(GitLsTreeTestBase):

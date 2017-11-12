@@ -185,3 +185,33 @@ class ParseTreeIshUnitTests(GitLsTreeTestBase):
             context_manager.exception.__str__(),
             r"The (?:root|'.*?') tree does not have a '.*?' subtree or blob"
         )
+
+class ProcessTreeIshUnitTests(GitLsTreeTestBase):
+    raw_items = ['raw', 'is', 'war']
+
+    def setUp(self):
+        self.mock_nodes = MagicMock(wraps=GitLsTreeNode)
+        getcwd_patcher = patch('git_ls_anytree.git_ls_tree.getcwd', return_value=self.universal_working_dir)
+        self.mock_cwd = getcwd_patcher.start()
+        self.addCleanup(getcwd_patcher.stop)
+        finalize_patcher = patch.object(GitLsTree, 'finalize_tree_ish', return_value=self.universal_tree_ish)
+        finalize_patcher.start()
+        process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
+        process_patcher.start()
+        query_patcher = patch.object(GitLsTree, 'query_tree_ish', return_value=self.raw_items)
+        self.mock_query = query_patcher.start()
+        self.addCleanup(query_patcher.stop)
+        parse_patcher = patch.object(GitLsTree, 'parse_tree_ish', return_value=self.raw_items)
+        self.mock_parse = parse_patcher.start()
+        self.addCleanup(parse_patcher.stop)
+        self.tree_instance = GitLsTree()
+        finalize_patcher.stop()
+        process_patcher.stop()
+
+    def test_query_called(self):
+        self.tree_instance.process_tree_ish()
+        self.mock_query.assert_called_once_with()
+
+    def test_parse_called(self):
+        self.tree_instance.process_tree_ish()
+        self.mock_parse.assert_called_once_with(self.raw_items)

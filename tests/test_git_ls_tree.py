@@ -20,9 +20,6 @@ class ConstructorUnitTests(GitLsTreeTestBase):
         getcwd_patcher = patch('git_ls_anytree.git_ls_tree.getcwd', return_value=self.universal_working_dir)
         self.mock_cwd = getcwd_patcher.start()
         self.addCleanup(getcwd_patcher.stop)
-        finalize_patcher = patch.object(GitLsTree, 'finalize_tree_ish', return_value=self.universal_tree_ish)
-        self.mock_finalize = finalize_patcher.start()
-        self.addCleanup(finalize_patcher.stop)
         process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
         self.mock_process = process_patcher.start()
         self.addCleanup(process_patcher.stop)
@@ -37,37 +34,15 @@ class ConstructorUnitTests(GitLsTreeTestBase):
         self.tree_instance = GitLsTree(working_dir=not_default_path)
         assert(getattr(self.tree_instance, 'working_dir') == not_default_path)
 
-    def test_finalized_tree_ish(self):
-        self.tree_instance = GitLsTree()
-        self.mock_finalize.assert_called_once_with('HEAD', [])
-        self.mock_finalize.reset_mock()
-        self.tree_instance = GitLsTree(self.universal_tree_ish, self.universal_working_dir)
-        self.mock_finalize.assert_called_once_with(self.universal_tree_ish, self.universal_working_dir)
-
     def test_tree_ish_is_processed(self):
         self.tree_instance = GitLsTree()
         self.mock_process.assert_called_once_with()
 
     def test_assigned_name(self):
         self.tree_instance = GitLsTree()
+        assert('HEAD' == self.tree_instance.name)
+        self.tree_instance = GitLsTree(self.universal_tree_ish)
         assert(self.universal_tree_ish == self.tree_instance.name)
-
-class FinalizeTreeIshUnitTests(GitLsTreeTestBase):
-    def setUp(self):
-        finalize_patcher = patch.object(GitLsTree, 'finalize_tree_ish', return_value=self.universal_tree_ish)
-        self.mock_finalize = finalize_patcher.start()
-        process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
-        self.mock_process = process_patcher.start()
-        self.tree_instance = GitLsTree()
-        finalize_patcher.stop()
-        process_patcher.stop()
-
-    def test_with_reference_only(self):
-        assert(self.universal_tree_ish == self.tree_instance.finalize_tree_ish(self.universal_tree_ish))
-        assert(self.universal_tree_ish == self.tree_instance.finalize_tree_ish(self.universal_tree_ish, ''))
-
-    def test_with_subpath(self):
-        assert(u"'%s %s' == self.tree_instance.finalize_tree_ish(self.universal_tree_ish, self.universal_working_dir)" % (self.universal_tree_ish, self.universal_working_dir))
 
 class QueryTreeIshUnitTests(GitLsTreeTestBase):
     number_of_git_lines = 20
@@ -99,12 +74,9 @@ class QueryTreeIshUnitTests(GitLsTreeTestBase):
         getcwd_patcher = patch('git_ls_anytree.git_ls_tree.getcwd', return_value=self.universal_working_dir)
         self.mock_cwd = getcwd_patcher.start()
         self.addCleanup(getcwd_patcher.stop)
-        finalize_patcher = patch.object(GitLsTree, 'finalize_tree_ish', return_value=self.universal_tree_ish)
-        finalize_patcher.start()
         process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
         process_patcher.start()
-        self.tree_instance = GitLsTree()
-        finalize_patcher.stop()
+        self.tree_instance = GitLsTree(self.universal_tree_ish)
         process_patcher.stop()
         subprocess_patcher = patch('git_ls_anytree.git_ls_tree.check_output', return_value=self.git_raw_output)
         self.mock_sub = subprocess_patcher.start()
@@ -113,7 +85,7 @@ class QueryTreeIshUnitTests(GitLsTreeTestBase):
     def test_subprocess_integration(self):
         self.tree_instance.query_tree_ish()
         self.mock_sub.assert_called_once_with(
-            ['git', 'ls-tree', self.universal_tree_ish, '-rtl'],
+            ['git', 'ls-tree', '-rtl', self.universal_tree_ish],
             cwd=self.universal_working_dir
         )
 
@@ -152,12 +124,9 @@ class ParseTreeIshUnitTests(GitLsTreeTestBase):
         getcwd_patcher = patch('git_ls_anytree.git_ls_tree.getcwd', return_value=self.universal_working_dir)
         self.mock_cwd = getcwd_patcher.start()
         self.addCleanup(getcwd_patcher.stop)
-        finalize_patcher = patch.object(GitLsTree, 'finalize_tree_ish', return_value=self.universal_tree_ish)
-        finalize_patcher.start()
         process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
         process_patcher.start()
         self.tree_instance = GitLsTree()
-        finalize_patcher.stop()
         process_patcher.stop()
 
     def test_generated_root_node(self):
@@ -194,8 +163,6 @@ class ProcessTreeIshUnitTests(GitLsTreeTestBase):
         getcwd_patcher = patch('git_ls_anytree.git_ls_tree.getcwd', return_value=self.universal_working_dir)
         self.mock_cwd = getcwd_patcher.start()
         self.addCleanup(getcwd_patcher.stop)
-        finalize_patcher = patch.object(GitLsTree, 'finalize_tree_ish', return_value=self.universal_tree_ish)
-        finalize_patcher.start()
         process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
         process_patcher.start()
         query_patcher = patch.object(GitLsTree, 'query_tree_ish', return_value=self.raw_items)
@@ -205,7 +172,6 @@ class ProcessTreeIshUnitTests(GitLsTreeTestBase):
         self.mock_parse = parse_patcher.start()
         self.addCleanup(parse_patcher.stop)
         self.tree_instance = GitLsTree()
-        finalize_patcher.stop()
         process_patcher.stop()
 
     def test_query_called(self):

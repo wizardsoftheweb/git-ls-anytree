@@ -60,33 +60,36 @@ class GitLsTreeNode(NodeMixin):
         """
         `Stack Overflow coverage <https://stackoverflow.com/a/8347325/2877698>`__
         """
-        value = {
-            '040000': {
-                'short': '/',
-                'long': 'directory'
-            },
-            '100644': {
-                'short': '',
-                'long': 'file'
-            },
-            '100664': {
-                'short': '',
-                'long': 'file'
-            },
-            '100755': {
-                'short': '*',
-                'long': 'executable'
-            },
-            '120000': {
-                'short': '@',
-                'long': 'symlink'
-            },
-            '160000': {
-                'short': '/',
-                'long': 'gitlink'
-            }
-        }[self.file_mode]
-        return value['short'] if short else value['long']
+        try:
+            value = {
+                '040000': {
+                    'short': '/',
+                    'long': 'directory'
+                },
+                '100644': {
+                    'short': '',
+                    'long': 'file'
+                },
+                '100664': {
+                    'short': '',
+                    'long': 'file'
+                },
+                '100755': {
+                    'short': '*',
+                    'long': 'executable'
+                },
+                '120000': {
+                    'short': '@',
+                    'long': 'symlink'
+                },
+                '160000': {
+                    'short': '/',
+                    'long': 'gitlink'
+                }
+            }[self.file_mode]
+            return value['short'] if short else value['long']
+        except KeyError:
+            return ''
 
     def walk_to_parent_node(self, exploded_path):
         """Walks the branch until exploded_path is empty

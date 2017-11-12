@@ -69,7 +69,6 @@ circumstances, --abbrev[=n] was split into --abbrev, for the default, and \
 
     git_abbrev_group.add_argument(
         '--abbrev-n',
-        nargs=1,
         dest='abbrev',
         type=int,
         default=argparse.SUPPRESS,
@@ -93,16 +92,18 @@ circumstances, --abbrev[=n] was split into --abbrev, for the default, and \
     )
 
     args = parser.parse_args()
-    print args
-    # full_tree = GitLsTree(
-    #     tree_ish=args.tree_ish,
-    #     patterns=args.patterns,
-    #     trees_only=args.trees_only
-    # )
-    # full_tree.pretty_print(
-    #     name_only=args.name_only,
-    #     classify=args.classify
-    # )
+
+    full_tree = GitLsTree(
+        tree_ish=args.tree_ish,
+        patterns=args.patterns,
+        trees_only=args.trees_only,
+        working_dir=args.working_directory,
+        abbrev=args.abbrev if hasattr(args, 'abbrev') else False
+    )
+    full_tree.pretty_print(
+        name_only=args.name_only,
+        classify=args.classify
+    )
 
 if __name__ == '__main__':
     cli()

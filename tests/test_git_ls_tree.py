@@ -1,10 +1,11 @@
 from anytree import RenderTree
 from git_ls_anytree import BrokenTreeError, GitLsTree, GitLsTreeNode
-from mock import MagicMock, patch
+from mock import call, MagicMock, patch
 from re import search
 
 import unittest
 import os
+import sys
 
 from subprocess import CalledProcessError, check_output
 
@@ -234,4 +235,76 @@ class RenderToListUnitTests(GitLsTreeTestBase):
         assert(6 == len(result['mode']))
         assert(6 == len(result['type']))
 
+class PrettyPrintUnitTests(GitLsTreeTestBase):
+    output_list = [
+        {
+            'object': 'object                                  ',
+            'depth': 0,
+            'mode': 'mode  ',
+            'line': 'qqq                   ',
+            'type': 'type  ',
+            '_': u'',
+            'size': 'size'
+        },
+        {
+            'object': 'd6692984ebddd76ae0a5e7c4da181b4b3f61c9da',
+            'depth': 1,
+            'mode': '100644',
+            'line': '\xe2\x94\x9c\xe2\x94\x80\xe2\x94\x80 README.rst        ',
+            'type': 'blob  ',
+            '_': u'\u2502   ',
+            'size': '1051'
+        }
+    ]
+
+    def reset_stdout(self):
+        sys.stdout = sys.__stdout__
+
+    def setUp(self):
+        self.mock_stdout = MagicMock()
+        sys.stdout = self.mock_stdout
+        self.addCleanup(self.reset_stdout)
+        render_patcher = patch.object(GitLsTree, 'render_to_list', return_value=self.output_list)
+        self.mock_render = render_patcher.start()
+        self.addCleanup(render_patcher.stop)
+        self.create_tree_instance()
+
+    def test_pass_classify_to_render(self):
+        self.tree_instance.pretty_print()
+        self.mock_render.assert_called_once_with(False)
+        for classify in [True, False]:
+            self.mock_render.reset_mock()
+            self.tree_instance.pretty_print(classify=classify)
+            self.mock_render.assert_called_once_with(classify)
+
+    def test_name_only(self):
+        self.tree_instance.pretty_print(name_only=True)
+        self.mock_stdout.assert_has_calls([
+            call.write(self.output_list[0]['line']),
+            call.write('\n'),
+            call.write(self.output_list[1]['line']),
+            call.write('\n')
+        ])
+
+    def test_full_print(self):
+        self.tree_instance.pretty_print()
+        self.reset_stdout()
+        self.mock_stdout.assert_has_calls([
+            call.write('%s\t%s\t%s\t%s\t%s' % (
+                self.output_list[0]['mode'],
+                self.output_list[0]['type'],
+                self.output_list[0]['object'],
+                self.output_list[0]['size'],
+                self.output_list[0]['line']
+            )),
+            call.write('\n'),
+            call.write('%s\t%s\t%s\t%s\t%s' % (
+                self.output_list[1]['mode'],
+                self.output_list[1]['type'],
+                self.output_list[1]['object'],
+                self.output_list[1]['size'],
+                self.output_list[1]['line']
+            )),
+            call.write('\n')
+        ])
 

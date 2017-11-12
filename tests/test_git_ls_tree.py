@@ -185,8 +185,50 @@ class ProcessTreeIshUnitTests(GitLsTreeTestBase):
         self.mock_parse.assert_called_once_with(self.raw_items)
 
 class RenderToListUnitTests(GitLsTreeTestBase):
+    exploded_input = [
+        '100644 blob   d6692984ebddd76ae0a5e7c4da181b4b3f61c9da  1051    README.rst',
+        '040000 tree   b797423bbb11b5a485c91b63cec2cae5bdb80ebf     -    git_ls_anytree',
+        '100664 blob   77d6f4ca23711533e724789a0a0045eab28c5ea6     6    git_ls_anytree/VERSION',
+        '100755 blob   69b140ebd030332bdccc274ad9b92e9df1d225d9    20    executable',
+        '120000 blob   19f0b03ae279fc7da9bdff15295c3585d71f6d1e    16    symlink',
+        '160000 commit ad522a091429ba180c930f84b2a023b40de4dbcc     -    external-submodule'
+    ]
+
     def setUp(self):
         self.create_tree_instance()
+        # self.tree_instance.parse_tree_ish(self.exploded_input)
 
-    def test_tree_instance(self):
-        assert(self.tree_instance.name == self.universal_tree_ish)
+    def test_line_encoding(self):
+        self.tree_instance.parse_tree_ish(self.exploded_input)
+        for result in self.tree_instance.render_to_list():
+            try:
+                result['line'].decode('utf-8', 'strict')
+            except UnicodeError:
+                self.fail("Unable to decode unicode")
+
+    def test_name_justification(self):
+        self.tree_instance.name = '0123456789'
+        result = self.tree_instance.render_to_list()[0]
+        assert(10 == len(result['line']))
+        self.tree_instance.file_mode = '040000'
+        result = self.tree_instance.render_to_list(classify=True)[0]
+        assert(11 == len(result['line']))
+
+    def test_abbrev_justification(self):
+        result = self.tree_instance.render_to_list()[0]
+        assert(GitLsTree.DEFAULT_ABBREV_LENGTH == len(result['object']))
+        self.tree_instance.abbrev_justification = 10
+        result = self.tree_instance.render_to_list()[0]
+        assert(10 == len(result['object']))
+
+    def test_size_justification(self):
+        self.tree_instance.git_object_size = '1234'
+        result = self.tree_instance.render_to_list()[0]
+        assert(4 == len(result['size']))
+
+    def test_other_justification(self):
+        result = self.tree_instance.render_to_list()[0]
+        assert(6 == len(result['mode']))
+        assert(6 == len(result['type']))
+
+

@@ -15,7 +15,7 @@ class GitLsTreeNode(NodeMixin):
 
     `Official docs <https://git-scm.com/docs/git-ls-tree#_output_format>`__
     """
-    FULL_GIT_PATTERN = r'^(?P<file_mode>\d{6})\s+(?P<item_type>blob|tree)\s+(?P<git_object>\w+)\s+(?P<git_object_size>[\d\-]+)\s+(?P<relative_path>.*)$'
+    FULL_GIT_PATTERN = r'^(?P<file_mode>\d{6})\s+(?P<item_type>blob|tree|commit)\s+(?P<git_object>\w+)\s+(?P<git_object_size>[\d\-]+)\s+(?P<relative_path>.*)$'
 
     def __init__(self, raw_git_output='', name='', parent=None):
         """Simple ctor; delegates processing to child methods
@@ -55,6 +55,41 @@ class GitLsTreeNode(NodeMixin):
             self.basename = basename(processed_groups.group('relative_path')) if processed_groups.group('relative_path') else self.basename
         if self.relative_path:
             self.exploded_path = convert_path_to_list(self.relative_path)
+
+    def classify(self, short=True):
+        """
+        `Stack Overflow coverage <https://stackoverflow.com/a/8347325/2877698>`__
+        """
+        try:
+            value = {
+                '040000': {
+                    'short': '/',
+                    'long': 'directory'
+                },
+                '100644': {
+                    'short': '',
+                    'long': 'file'
+                },
+                '100664': {
+                    'short': '',
+                    'long': 'file'
+                },
+                '100755': {
+                    'short': '*',
+                    'long': 'executable'
+                },
+                '120000': {
+                    'short': '@',
+                    'long': 'symlink'
+                },
+                '160000': {
+                    'short': '/',
+                    'long': 'gitlink'
+                }
+            }[self.file_mode]
+            return value['short'] if short else value['long']
+        except KeyError:
+            return ''
 
     def walk_to_parent_node(self, exploded_path):
         """Walks the branch until exploded_path is empty

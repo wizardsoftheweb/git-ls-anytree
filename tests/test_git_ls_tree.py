@@ -1,16 +1,29 @@
-from anytree import RenderTree
 from git_ls_anytree import BrokenTreeError, GitLsTree, GitLsTreeNode
-from mock import MagicMock, patch
+from mock import call, MagicMock, patch
 from re import search
 
 import unittest
 import os
+import sys
 
 from subprocess import CalledProcessError, check_output
 
 class GitLsTreeTestBase(unittest.TestCase):
     universal_tree_ish = 'qqq'
     universal_working_dir = 'local/path'
+
+    def wipe_tree_instance(self):
+        del self.tree_instance
+
+    def create_tree_instance(self):
+        getcwd_patcher = patch('git_ls_anytree.git_ls_tree.getcwd', return_value=self.universal_working_dir)
+        self.mock_cwd = getcwd_patcher.start()
+        self.addCleanup(getcwd_patcher.stop)
+        process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
+        process_patcher.start()
+        self.tree_instance = GitLsTree(self.universal_tree_ish)
+        process_patcher.stop()
+        self.addCleanup(self.wipe_tree_instance)
 
 class ConstructorUnitTests(GitLsTreeTestBase):
     def setUp(self):
@@ -20,9 +33,6 @@ class ConstructorUnitTests(GitLsTreeTestBase):
         getcwd_patcher = patch('git_ls_anytree.git_ls_tree.getcwd', return_value=self.universal_working_dir)
         self.mock_cwd = getcwd_patcher.start()
         self.addCleanup(getcwd_patcher.stop)
-        finalize_patcher = patch.object(GitLsTree, 'finalize_tree_ish', return_value=self.universal_tree_ish)
-        self.mock_finalize = finalize_patcher.start()
-        self.addCleanup(finalize_patcher.stop)
         process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
         self.mock_process = process_patcher.start()
         self.addCleanup(process_patcher.stop)
@@ -37,37 +47,26 @@ class ConstructorUnitTests(GitLsTreeTestBase):
         self.tree_instance = GitLsTree(working_dir=not_default_path)
         assert(getattr(self.tree_instance, 'working_dir') == not_default_path)
 
-    def test_finalized_tree_ish(self):
-        self.tree_instance = GitLsTree()
-        self.mock_finalize.assert_called_once_with('HEAD', '')
-        self.mock_finalize.reset_mock()
-        self.tree_instance = GitLsTree(self.universal_tree_ish, self.universal_working_dir)
-        self.mock_finalize.assert_called_once_with(self.universal_tree_ish, self.universal_working_dir)
-
     def test_tree_ish_is_processed(self):
         self.tree_instance = GitLsTree()
         self.mock_process.assert_called_once_with()
 
     def test_assigned_name(self):
         self.tree_instance = GitLsTree()
+        assert('HEAD' == self.tree_instance.name)
+        self.tree_instance = GitLsTree(self.universal_tree_ish)
         assert(self.universal_tree_ish == self.tree_instance.name)
 
-class FinalizeTreeIshUnitTests(GitLsTreeTestBase):
-    def setUp(self):
-        finalize_patcher = patch.object(GitLsTree, 'finalize_tree_ish', return_value=self.universal_tree_ish)
-        self.mock_finalize = finalize_patcher.start()
-        process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
-        self.mock_process = process_patcher.start()
+    def test_abbrev_assignment(self):
         self.tree_instance = GitLsTree()
-        finalize_patcher.stop()
-        process_patcher.stop()
-
-    def test_with_reference_only(self):
-        assert(self.universal_tree_ish == self.tree_instance.finalize_tree_ish(self.universal_tree_ish))
-        assert(self.universal_tree_ish == self.tree_instance.finalize_tree_ish(self.universal_tree_ish, ''))
-
-    def test_with_subpath(self):
-        assert(u"'%s:%s' == self.tree_instance.finalize_tree_ish(self.universal_tree_ish, self.universal_working_dir)" % (self.universal_tree_ish, self.universal_working_dir))
+        assert(GitLsTree.DEFAULT_ABBREV_LENGTH == self.tree_instance.abbrev_justification)
+        assert([] == self.tree_instance.extra_opts)
+        self.tree_instance = GitLsTree(abbrev=10)
+        assert(10 == self.tree_instance.abbrev_justification)
+        assert(['--abbrev=10'] == self.tree_instance.extra_opts)
+        self.tree_instance = GitLsTree(abbrev=3)
+        assert(GitLsTree.MINIMUM_ABBREV_JUSTIFICATION == self.tree_instance.abbrev_justification)
+        assert(['--abbrev=3'] == self.tree_instance.extra_opts)
 
 class QueryTreeIshUnitTests(GitLsTreeTestBase):
     number_of_git_lines = 20
@@ -96,24 +95,15 @@ class QueryTreeIshUnitTests(GitLsTreeTestBase):
 """
 
     def setUp(self):
-        getcwd_patcher = patch('git_ls_anytree.git_ls_tree.getcwd', return_value=self.universal_working_dir)
-        self.mock_cwd = getcwd_patcher.start()
-        self.addCleanup(getcwd_patcher.stop)
-        finalize_patcher = patch.object(GitLsTree, 'finalize_tree_ish', return_value=self.universal_tree_ish)
-        finalize_patcher.start()
-        process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
-        process_patcher.start()
-        self.tree_instance = GitLsTree()
-        finalize_patcher.stop()
-        process_patcher.stop()
         subprocess_patcher = patch('git_ls_anytree.git_ls_tree.check_output', return_value=self.git_raw_output)
         self.mock_sub = subprocess_patcher.start()
         self.addCleanup(subprocess_patcher.stop)
+        self.create_tree_instance()
 
     def test_subprocess_integration(self):
         self.tree_instance.query_tree_ish()
         self.mock_sub.assert_called_once_with(
-            ['git', 'ls-tree', self.universal_tree_ish, '-rtl'],
+            GitLsTree.BASE_GIT_LS_TREE_CALL + [self.universal_tree_ish],
             cwd=self.universal_working_dir
         )
 
@@ -125,7 +115,7 @@ class QueryTreeIshUnitTests(GitLsTreeTestBase):
     def test_subprocess_git_failure(self):
         error_dict = {
             'returncode': 128,
-            'cmd': ['git', 'ls-tree', 'mxyzptlk', '-rtl'],
+            'cmd': GitLsTree.BASE_GIT_LS_TREE_CALL + ['mxyzptlk'],
             'output': None
         }
         self.mock_sub.side_effect = CalledProcessError(**error_dict)
@@ -149,16 +139,7 @@ class ParseTreeIshUnitTests(GitLsTreeTestBase):
 
     def setUp(self):
         self.mock_nodes = MagicMock(wraps=GitLsTreeNode)
-        getcwd_patcher = patch('git_ls_anytree.git_ls_tree.getcwd', return_value=self.universal_working_dir)
-        self.mock_cwd = getcwd_patcher.start()
-        self.addCleanup(getcwd_patcher.stop)
-        finalize_patcher = patch.object(GitLsTree, 'finalize_tree_ish', return_value=self.universal_tree_ish)
-        finalize_patcher.start()
-        process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
-        process_patcher.start()
-        self.tree_instance = GitLsTree()
-        finalize_patcher.stop()
-        process_patcher.stop()
+        self.create_tree_instance()
 
     def test_generated_root_node(self):
         self.tree_instance.parse_tree_ish(self.exploded_input)
@@ -191,22 +172,13 @@ class ProcessTreeIshUnitTests(GitLsTreeTestBase):
 
     def setUp(self):
         self.mock_nodes = MagicMock(wraps=GitLsTreeNode)
-        getcwd_patcher = patch('git_ls_anytree.git_ls_tree.getcwd', return_value=self.universal_working_dir)
-        self.mock_cwd = getcwd_patcher.start()
-        self.addCleanup(getcwd_patcher.stop)
-        finalize_patcher = patch.object(GitLsTree, 'finalize_tree_ish', return_value=self.universal_tree_ish)
-        finalize_patcher.start()
-        process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
-        process_patcher.start()
         query_patcher = patch.object(GitLsTree, 'query_tree_ish', return_value=self.raw_items)
         self.mock_query = query_patcher.start()
         self.addCleanup(query_patcher.stop)
         parse_patcher = patch.object(GitLsTree, 'parse_tree_ish', return_value=self.raw_items)
         self.mock_parse = parse_patcher.start()
         self.addCleanup(parse_patcher.stop)
-        self.tree_instance = GitLsTree()
-        finalize_patcher.stop()
-        process_patcher.stop()
+        self.create_tree_instance()
 
     def test_query_called(self):
         self.tree_instance.process_tree_ish()
@@ -215,3 +187,123 @@ class ProcessTreeIshUnitTests(GitLsTreeTestBase):
     def test_parse_called(self):
         self.tree_instance.process_tree_ish()
         self.mock_parse.assert_called_once_with(self.raw_items)
+
+class RenderToListUnitTests(GitLsTreeTestBase):
+    exploded_input = [
+        '100644 blob   d6692984ebddd76ae0a5e7c4da181b4b3f61c9da  1051    README.rst',
+        '040000 tree   b797423bbb11b5a485c91b63cec2cae5bdb80ebf     -    git_ls_anytree',
+        '100664 blob   77d6f4ca23711533e724789a0a0045eab28c5ea6     6    git_ls_anytree/VERSION',
+        '100755 blob   69b140ebd030332bdccc274ad9b92e9df1d225d9    20    executable',
+        '120000 blob   19f0b03ae279fc7da9bdff15295c3585d71f6d1e    16    symlink',
+        '160000 commit ad522a091429ba180c930f84b2a023b40de4dbcc     -    external-submodule'
+    ]
+
+    def setUp(self):
+        self.create_tree_instance()
+
+    def test_line_encoding(self):
+        self.tree_instance.parse_tree_ish(self.exploded_input)
+        for result in self.tree_instance.render_to_list():
+            try:
+                result['line'].decode('utf-8', 'strict')
+            except UnicodeError:
+                self.fail("Unable to decode unicode")
+
+    def test_name_justification(self):
+        self.tree_instance.name = '0123456789'
+        result = self.tree_instance.render_to_list()[0]
+        assert(10 == len(result['line']))
+        self.tree_instance.file_mode = '040000'
+        result = self.tree_instance.render_to_list(classify=True)[0]
+        assert(11 == len(result['line']))
+
+    def test_abbrev_justification(self):
+        result = self.tree_instance.render_to_list()[0]
+        assert(GitLsTree.DEFAULT_ABBREV_LENGTH == len(result['object']))
+        self.tree_instance.abbrev_justification = 10
+        result = self.tree_instance.render_to_list()[0]
+        assert(10 == len(result['object']))
+
+    def test_size_justification(self):
+        self.tree_instance.git_object_size = '1234'
+        result = self.tree_instance.render_to_list()[0]
+        assert(4 == len(result['size']))
+
+    def test_other_justification(self):
+        result = self.tree_instance.render_to_list()[0]
+        assert(6 == len(result['mode']))
+        assert(6 == len(result['type']))
+
+class PrettyPrintUnitTests(GitLsTreeTestBase):
+    output_list = [
+        {
+            'object': 'object                                  ',
+            'depth': 0,
+            'mode': 'mode  ',
+            'line': 'qqq                   ',
+            'type': 'type  ',
+            '_': u'',
+            'size': 'size'
+        },
+        {
+            'object': 'd6692984ebddd76ae0a5e7c4da181b4b3f61c9da',
+            'depth': 1,
+            'mode': '100644',
+            'line': '\xe2\x94\x9c\xe2\x94\x80\xe2\x94\x80 README.rst        ',
+            'type': 'blob  ',
+            '_': u'\u2502   ',
+            'size': '1051'
+        }
+    ]
+
+    def reset_stdout(self):
+        sys.stdout = sys.__stdout__
+
+    def setUp(self):
+        self.mock_stdout = MagicMock()
+        sys.stdout = self.mock_stdout
+        self.addCleanup(self.reset_stdout)
+        render_patcher = patch.object(GitLsTree, 'render_to_list', return_value=self.output_list)
+        self.mock_render = render_patcher.start()
+        self.addCleanup(render_patcher.stop)
+        self.create_tree_instance()
+
+    def test_pass_classify_to_render(self):
+        self.tree_instance.pretty_print()
+        self.mock_render.assert_called_once_with(False)
+        for classify in [True, False]:
+            self.mock_render.reset_mock()
+            self.tree_instance.pretty_print(classify=classify)
+            self.mock_render.assert_called_once_with(classify)
+
+    def test_name_only(self):
+        self.tree_instance.pretty_print(name_only=True)
+        self.mock_stdout.assert_has_calls([
+            call.write(self.output_list[0]['line']),
+            call.write('\n'),
+            call.write(self.output_list[1]['line']),
+            call.write('\n')
+        ])
+
+    def test_full_print(self):
+        self.tree_instance.pretty_print()
+        self.reset_stdout()
+        self.mock_stdout.assert_has_calls([
+            call.write('%s\t%s\t%s\t%s\t%s' % (
+                self.output_list[0]['mode'],
+                self.output_list[0]['type'],
+                self.output_list[0]['object'],
+                self.output_list[0]['size'],
+                self.output_list[0]['line']
+            )),
+            call.write('\n'),
+            call.write('%s\t%s\t%s\t%s\t%s' % (
+                self.output_list[1]['mode'],
+                self.output_list[1]['type'],
+                self.output_list[1]['object'],
+                self.output_list[1]['size'],
+                self.output_list[1]['line']
+            )),
+            call.write('\n')
+        ])
+

@@ -99,3 +99,35 @@ class WalkToParentNodeUnitTests(unittest.TestCase):
             context_manager.exception.__str__(),
             r"The (?:root|'.*?') tree does not have a '.*?' subtree or blob"
         )
+
+class ClassifyUnitTests(unittest.TestCase):
+    def setUp(self):
+        self.node = GitLsTreeNode()
+
+    def tearDown(self):
+        del self.node
+
+    def run_classify(self, mode, short_result, long_result):
+        self.node.file_mode = mode
+        assert(short_result == self.node.classify())
+        assert(short_result == self.node.classify(short=True))
+        assert(long_result == self.node.classify(short=False))
+
+    def test_directory_classification(self):
+        self.run_classify('040000', '/', 'directory')
+
+    def test_file_classification(self):
+        self.run_classify('100644', '', 'file')
+        self.run_classify('100664', '', 'file')
+
+    def test_executable_classification(self):
+        self.run_classify('100755', '*', 'executable')
+
+    def test_executable_classification(self):
+        self.run_classify('120000', '@', 'symlink')
+
+    def test_executable_classification(self):
+        self.run_classify('160000', '/', 'gitlink')
+
+    def test_unknown_classification(self):
+        self.run_classify('unknown', '', '')

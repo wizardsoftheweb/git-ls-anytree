@@ -14,7 +14,8 @@ def cli():
     parser.add_argument(
         '--name-only', '--name-status',
         action='store_true',
-        dest='name_only'
+        dest='name_only',
+        help='Only print the tree structure per git-ls-tree --name-(only|status)'
     )
 
     parser.add_argument(

@@ -10,7 +10,14 @@ class GitLsTree(GitLsTreeNode):
     builds an anytree from the result
     """
 
-    def __init__(self, tree_ish='HEAD', patterns=[], trees_only=False, working_dir=None):
+    def __init__(
+        self,
+        tree_ish='HEAD',
+        patterns=[],
+        trees_only=False,
+        working_dir=None,
+        abbrev=False
+    ):
         """Ctor with defaults
 
         Parameters:
@@ -27,6 +34,7 @@ class GitLsTree(GitLsTreeNode):
         self.git_object_size = 'size'
         self.patterns = patterns
         self.extra_opts = ['-d'] if trees_only else []
+        self.extra_opts += ['--abbrev=%s' % abbrev] if 4 < abbrev else []
         self.process_tree_ish()
 
     def query_tree_ish(self):

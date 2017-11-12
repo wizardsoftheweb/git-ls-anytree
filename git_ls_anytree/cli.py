@@ -39,15 +39,17 @@ def cli():
     )
 
     parser.add_argument(
-        'TreeIsh',
+        'tree-ish',
         nargs='?',
         type=str,
+        dest='tree_ish',
         default='HEAD',
         help='Reference to tree-ish'
     )
 
     parser.add_argument(
-        'Patterns',
+        'patterns',
+        dest='patterns',
         nargs='*',
         default=[],
         help='Subtrees within the main tree-ish'
@@ -55,8 +57,8 @@ def cli():
 
     args = parser.parse_args()
     full_tree = GitLsTree(
-        tree_ish=args.TreeIsh,
-        patterns=args.Patterns,
+        tree_ish=args.tree_ish,
+        patterns=args.patterns,
         trees_only=args.trees_only
     )
     full_tree.pretty_print(

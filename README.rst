@@ -1,6 +1,10 @@
 .. image:: https://travis-ci.org/wizardsoftheweb/git-ls-anytree.svg?branch=master
     :target: https://travis-ci.org/wizardsoftheweb/git-ls-anytree
 
+.. image:: https://coveralls.io/repos/github/wizardsoftheweb/git-ls-anytree/badge.svg?branch=master
+    :target: https://coveralls.io/github/wizardsoftheweb/git-ls-anytree?branch=master
+
+
 ``git-ls-anytree``
 ------------------
 

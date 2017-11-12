@@ -4,6 +4,15 @@
 ``git-ls-anytree``
 ------------------
 
+This is still a pretty major work-in-progress and I wouldn't recommend using it just yet.
+
+As of ``v0.1.0``, I have a very basic API built and most of the moving parts necessary for the package. I don't know how it will interact with anything else, necessary features like displaying and refining the object hash don't exist, and the tests seem super messy. So far it's only been tested on itself. I also have so many things to learn about Python.
+
+That being said, it works, which is pretty neat. Hopefully I'll have a mostly finished and stable API soon.
+
+Everything Else
+---------------
+
 TODO
 
 References

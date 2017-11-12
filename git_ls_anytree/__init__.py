@@ -3,4 +3,4 @@ from .local_exceptions import BrokenTreeError
 from .git_ls_tree_node import GitLsTreeNode
 from .git_ls_tree import GitLsTree
 from .cli_file import cli
-from .__version import __version__
+from .__version__ import __version__

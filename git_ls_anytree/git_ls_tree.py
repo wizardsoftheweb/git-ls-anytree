@@ -21,6 +21,10 @@ class GitLsTree(GitLsTreeNode):
         super(GitLsTree, self).__init__(name='root')
         self.working_dir = working_dir if working_dir else getcwd()
         self.name = tree_ish
+        self.file_mode = 'mode'
+        self.item_type = 'type'
+        self.git_object = 'object'
+        self.git_object_size = 'size'
         self.patterns = patterns
         self.process_tree_ish()
 
@@ -46,12 +50,30 @@ class GitLsTree(GitLsTreeNode):
         self.parse_tree_ish(raw_git)
 
     def render_to_list(self):
+        max_name_length = 0
+        max_size_length = 0
         output = []
         for pre, _, node in RenderTree(self):
             printed_name = node.name if node.name else node.basename
-            output += [u'%s%s' % (pre, printed_name)]
+            current_node = (u'%s%s' % (pre, printed_name)).encode('utf-8')
+            current_name_length = len(current_node.decode('utf-8'))
+            max_name_length = current_name_length if max_name_length < current_name_length else max_name_length
+            max_size_length = len(node.git_object_size) if max_size_length < len(node.git_object_size) else max_size_length
+            output += [{
+                'line': current_node,
+                'mode': node.file_mode.ljust(6),
+                'type': node.item_type.ljust(6),
+                'object': node.git_object.ljust(40),
+                'size': node.git_object_size
+            }]
+        for tree_line in output:
+            tree_line['line'] = tree_line['line'].decode('utf-8').ljust(max_name_length).encode('utf-8')
+            tree_line['size'] = tree_line['size'].rjust(max_size_length)
         return output
 
-    def pretty_print(self):
+    def pretty_print(self, name_only=False):
         for tree_line in self.render_to_list():
-            print tree_line.encode('utf-8')
+            if name_only:
+                print tree_line['line']
+            else:
+                print '\t'.join(tree_line.values())

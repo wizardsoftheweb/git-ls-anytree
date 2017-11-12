@@ -33,7 +33,7 @@ class GitLsTree(GitLsTreeNode):
         splits the result
         """
         raw_blob = check_output(
-            ['git', 'ls-tree', '-rtl', self.name] + self.patterns,
+            ['git', 'ls-tree', '-rtl', '--full-tree', self.name] + self.patterns,
             cwd=self.working_dir
         )
         return raw_blob.strip().split('\n')

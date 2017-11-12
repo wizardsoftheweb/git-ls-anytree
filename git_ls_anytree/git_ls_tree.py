@@ -10,6 +10,8 @@ class GitLsTree(GitLsTreeNode):
     builds an anytree from the result
     """
 
+    BASE_GIT_LS_TREE_CALL = ['git', 'ls-tree', '-rtl', '--full-tree']
+
     def __init__(
         self,
         tree_ish='HEAD',
@@ -46,7 +48,7 @@ class GitLsTree(GitLsTreeNode):
         splits the result
         """
         raw_blob = check_output(
-            ['git', 'ls-tree', '-rtl', '--full-tree'] + self.extra_opts + [self.name] + self.patterns,
+            self.BASE_GIT_LS_TREE_CALL + self.extra_opts + [self.name] + self.patterns,
             cwd=self.working_dir
         )
         return raw_blob.strip().split('\n')

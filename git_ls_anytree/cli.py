@@ -11,16 +11,20 @@ def cli():
         description='Python tool to pretty-print git-ls-tree'
     )
 
-    parser.add_argument(
+    git_args = parser.add_argument_group('Inherited git-ls-tree arguments')
+
+    git_args.add_argument(
         '--name-only', '--name-status',
         action='store_true',
         dest='name_only',
         help='Only print the tree structure per git-ls-tree --name-(only|status)'
     )
 
+    git_abbrev_group = git_args.add_mutually_exclusive_group()
+
     # TODO: Pull core.abbrev
-    parser.add_argument(
-        '--default-abbrev',
+    git_abbrev_group.add_argument(
+        '--abbrev',
         default=argparse.SUPPRESS,
         dest='abbrev',
         action='store_const',
@@ -28,26 +32,29 @@ def cli():
         help='Equivalent to git-ls-tree --abbrev. Uses the default git short hash of seven characters.'
     )
 
-    parser.add_argument(
-        '--abbrev',
+    git_abbrev_group.add_argument(
+        '--abbrev-n',
         nargs=1,
+        dest='abbrev',
         type=int,
         default=argparse.SUPPRESS,
         help='Sets the git object abbreviation per git-ls-tree --abbrev=n'
     )
 
-    parser.add_argument(
-        '-F', '--classify',
-        action='store_true',
-        dest='classify',
-        help='Appends ( *@/) per ls -F'
-    )
-
-    parser.add_argument(
+    git_args.add_argument(
         '-d', '--trees-only',
         action='store_true',
         dest='trees_only',
         help='Only print trees per git-ls-tree -d'
+    )
+
+    tree_args = parser.add_argument_group('Inherited tree arguments')
+
+    tree_args.add_argument(
+        '-F', '--classify',
+        action='store_true',
+        dest='classify',
+        help='Appends ( *@/) to filename per ls -F'
     )
 
     parser.add_argument(

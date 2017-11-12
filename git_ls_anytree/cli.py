@@ -1,4 +1,5 @@
 from os.path import join
+from git_ls_anytree import GitLsTree
 
 import argparse
 
@@ -11,6 +12,12 @@ def cli():
     )
 
     parser.add_argument(
+        '-v', '--version',
+        action='version',
+        version='%s' % __version__
+    )
+
+    parser.add_argument(
         'TreeIsh',
         nargs='?',
         type=str,
@@ -19,13 +26,13 @@ def cli():
     )
 
     parser.add_argument(
-        '-v', '--version',
-        action='version',
-        version='%s' % __version__
+        'Patterns',
+        nargs='*',
+        default=[],
+        help='Subtrees within the main tree-ish'
     )
 
     args = parser.parse_args()
-    print args
 
 if __name__ == '__main__':
     cli()

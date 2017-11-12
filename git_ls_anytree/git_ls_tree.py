@@ -16,7 +16,7 @@ class GitLsTree(GitLsTreeNode):
         patterns=[],
         trees_only=False,
         working_dir=None,
-        abbrev=False
+        abbrev=None
     ):
         """Ctor with defaults
 
@@ -34,8 +34,8 @@ class GitLsTree(GitLsTreeNode):
         self.git_object_size = 'size'
         self.patterns = patterns
         self.extra_opts = ['-d'] if trees_only else []
-        self.extra_opts += ['--abbrev=%s' % int(abbrev)] if 0 <= int(abbrev) else []
         if abbrev:
+            self.extra_opts += ['--abbrev=%s' % int(abbrev)] if 0 <= int(abbrev) else []
             self.abbrev_length = int(abbrev) if 5 < int(abbrev) else 6
         else:
             self.abbrev_length = 40

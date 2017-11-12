@@ -98,7 +98,7 @@ circumstances, --abbrev[=n] was split into --abbrev, for the default, and \
         patterns=args.patterns,
         trees_only=args.trees_only,
         working_dir=args.working_directory,
-        abbrev=args.abbrev if hasattr(args, 'abbrev') else False
+        abbrev=args.abbrev if hasattr(args, 'abbrev') else None
     )
     full_tree.pretty_print(
         name_only=args.name_only,

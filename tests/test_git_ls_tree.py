@@ -1,4 +1,5 @@
-from git_ls_anytree import GitLsTree, GitLsTreeNode
+from anytree import RenderTree
+from git_ls_anytree import BrokenTreeError, GitLsTree, GitLsTreeNode
 from mock import MagicMock, patch
 from re import search
 
@@ -40,6 +41,10 @@ class ConstructorUnitTests(GitLsTreeTestBase):
     def test_tree_ish_is_processed(self):
         tree_instance = GitLsTree()
         self.mock_process.assert_called_once_with()
+
+    # def test_assigned_name(self):
+    #     tree_instance = GitLsTree()
+    #     assert('root' == getattr(tree_instance, 'name'))
 
 class FinalizeTreeIshUnitTests(GitLsTreeTestBase):
     def setUp(self):
@@ -123,3 +128,51 @@ class QueryTreeIshUnitTests(GitLsTreeTestBase):
         for key, value in error_dict.iteritems():
             assert(value == getattr(context_manager.exception, key))
         self.mock_sub.side_effect = None
+
+class ParseTreeIshUnitTests(GitLsTreeTestBase):
+    exploded_input = [
+        '100644 blob d6692984ebddd76ae0a5e7c4da181b4b3f61c9da    1051    README.rst',
+        '040000 tree b797423bbb11b5a485c91b63cec2cae5bdb80ebf       -    git_ls_anytree',
+        '100644 blob 77d6f4ca23711533e724789a0a0045eab28c5ea6       6    git_ls_anytree/VERSION'
+    ]
+
+    intentionally_broken_input = [
+        '100644 blob d6692984ebddd76ae0a5e7c4da181b4b3f61c9da    1051    README.rst',
+        '100644 blob 77d6f4ca23711533e724789a0a0045eab28c5ea6       6    git_ls_anytree/VERSION'
+    ]
+
+    def setUp(self):
+        self.mock_nodes = MagicMock(wraps=GitLsTreeNode)
+        getcwd_patcher = patch('git_ls_anytree.git_ls_tree.getcwd', return_value=self.universal_working_dir)
+        self.mock_cwd = getcwd_patcher.start()
+        self.addCleanup(getcwd_patcher.stop)
+        finalize_patcher = patch.object(GitLsTree, 'finalize_tree_ish', return_value=self.universal_tree_ish)
+        finalize_patcher.start()
+        process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
+        process_patcher.start()
+        self.tree_instance = GitLsTree()
+        finalize_patcher.stop()
+        process_patcher.stop()
+
+    def test_generated_root_node(self):
+        self.tree_instance.parse_tree_ish(self.exploded_input)
+        for descendant in self.tree_instance.descendants:
+            assert(self.tree_instance == descendant.root)
+
+    def test_generated_relationships(self):
+        self.tree_instance.parse_tree_ish(self.exploded_input)
+        assert(2 == len(self.tree_instance.children))
+        assert(0 == self.tree_instance.depth)
+        for immediate_child in self.tree_instance.children:
+            assert(1 == immediate_child.depth)
+            if 'blob' == immediate_child.item_type:
+                self.assertTrue(immediate_child.is_leaf)
+            else:
+                self.assertFalse(immediate_child.is_leaf)
+                for grand_children in immediate_child.children:
+                    assert(2 == grand_children.depth)
+
+    # def test_broken_tree_error(self):
+    #     with self.assertRaises(BrokenTreeError) as context_manager:
+    #         self.tree_instance.parse_tree_ish(self.intentionally_broken_input)
+    #     assert("The '' tree does not have a 'nope' subtree or blob" == context_manager.exception.__str__())

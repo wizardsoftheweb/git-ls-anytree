@@ -1,6 +1,6 @@
 from os import getcwd
 from os.path import join
-from git_ls_anytree import GitLsTree
+from git_ls_tree import GitLsTree
 
 import argparse
 

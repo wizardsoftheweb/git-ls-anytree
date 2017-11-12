@@ -44,6 +44,17 @@ class ConstructorUnitTests(GitLsTreeTestBase):
         self.tree_instance = GitLsTree(self.universal_tree_ish)
         assert(self.universal_tree_ish == self.tree_instance.name)
 
+    def test_abbrev_assignment(self):
+        self.tree_instance = GitLsTree()
+        assert(GitLsTree.DEFAULT_ABBREV_LENGTH == self.tree_instance.abbrev_justification)
+        assert([] == self.tree_instance.extra_opts)
+        self.tree_instance = GitLsTree(abbrev=10)
+        assert(10 == self.tree_instance.abbrev_justification)
+        assert(['--abbrev=10'] == self.tree_instance.extra_opts)
+        self.tree_instance = GitLsTree(abbrev=3)
+        assert(GitLsTree.MINIMUM_ABBREV_JUSTIFICATION == self.tree_instance.abbrev_justification)
+        assert(['--abbrev=3'] == self.tree_instance.extra_opts)
+
 class QueryTreeIshUnitTests(GitLsTreeTestBase):
     number_of_git_lines = 20
     git_raw_output = """

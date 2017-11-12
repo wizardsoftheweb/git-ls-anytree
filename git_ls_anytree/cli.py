@@ -36,7 +36,7 @@ circumstances, --abbrev[=n] was split into --abbrev, for the default, and \
         nargs='?',
         type=str,
         default='HEAD',
-        help='Reference to tree-ish'
+        help='Reference to tree-ish. Defaults to HEAD'
     )
 
     parser.add_argument(

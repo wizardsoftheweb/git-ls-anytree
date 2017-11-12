@@ -18,6 +18,13 @@ def cli():
     )
 
     parser.add_argument(
+        '-F', '--classify',
+        action='store_true',
+        dest='classify',
+        help='Appends ( *@/) per ls -F'
+    )
+
+    parser.add_argument(
         '-v', '--version',
         action='version',
         version='%s' % __version__
@@ -39,6 +46,14 @@ def cli():
     )
 
     args = parser.parse_args()
+    full_tree = GitLsTree(
+        tree_ish=args.TreeIsh,
+        patterns=args.Patterns
+    )
+    full_tree.pretty_print(
+        name_only=args.name_only,
+        classify=args.classify
+    )
 
 if __name__ == '__main__':
     cli()

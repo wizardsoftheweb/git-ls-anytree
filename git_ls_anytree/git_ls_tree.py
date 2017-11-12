@@ -10,7 +10,7 @@ class GitLsTree(GitLsTreeNode):
     builds an anytree from the result
     """
 
-    def __init__(self, tree_ish='HEAD', path_in_tree_ish='', working_dir=None):
+    def __init__(self, tree_ish='HEAD', subtrees=[], working_dir=None):
         """Ctor with defaults
 
         Parameters:
@@ -20,12 +20,12 @@ class GitLsTree(GitLsTreeNode):
         """
         super(GitLsTree, self).__init__(name='root')
         self.working_dir = working_dir if working_dir else getcwd()
-        self.name = self.finalize_tree_ish(tree_ish, path_in_tree_ish)
+        self.name = self.finalize_tree_ish(tree_ish, subtrees)
         self.process_tree_ish()
 
-    def finalize_tree_ish(self, tree_ish, path_in_tree_ish=''):
+    def finalize_tree_ish(self, tree_ish, subtrees=[]):
         """Combines input to tree_ish(:path_in_tree_ish)?"""
-        return tree_ish + ((':' + path_in_tree_ish) if path_in_tree_ish else '')
+        return tree_ish + ((' ' + subtrees.join(' ')) if 0 < len(subtrees) else '')
 
     def query_tree_ish(self):
         """Spawns a subprocess to in working_dir to run git ls-tree; strips and
@@ -47,3 +47,14 @@ class GitLsTree(GitLsTreeNode):
         """Queries git and builds the tree"""
         raw_git = self.query_tree_ish()
         self.parse_tree_ish(raw_git)
+
+    def render_to_list(self):
+        output = []
+        for pre, _, node in RenderTree(self):
+            printed_name = node.name if node.name else node.basename
+            output += [u'%s%s' % (pre, printed_name)]
+        return output
+
+    def pretty_print(self):
+        for tree_line in self.render_to_list():
+            print tree_line.encode('utf-8')

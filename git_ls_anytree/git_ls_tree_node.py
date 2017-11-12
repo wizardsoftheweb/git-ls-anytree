@@ -15,7 +15,7 @@ class GitLsTreeNode(NodeMixin):
 
     `Official docs <https://git-scm.com/docs/git-ls-tree#_output_format>`__
     """
-    FULL_GIT_PATTERN = r'^(?P<file_mode>\d{6})\s+(?P<item_type>blob|tree)\s+(?P<git_object>\w+)\s+(?P<git_object_size>[\d\-]+)\s+(?P<relative_path>.*)$'
+    FULL_GIT_PATTERN = r'^(?P<file_mode>\d{6})\s+(?P<item_type>blob|tree|commit)\s+(?P<git_object>\w+)\s+(?P<git_object_size>[\d\-]+)\s+(?P<relative_path>.*)$'
 
     def __init__(self, raw_git_output='', name='', parent=None):
         """Simple ctor; delegates processing to child methods

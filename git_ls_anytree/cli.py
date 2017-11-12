@@ -8,7 +8,12 @@ with open(join('git_ls_anytree', 'VERSION')) as version_file:
 
 def cli():
     parser = argparse.ArgumentParser(
-        description='Python tool to pretty-print git-ls-tree'
+        description='Python tool to pretty-print git-ls-tree',
+        epilog="""\
+Due to known issues with nargs='?' consuming positionals under the right \
+circumstances, --abbrev[=n] was split into --abbrev, for the default, and \
+--abbrev-n INT, to specify a level.
+"""
     )
 
     git_args = parser.add_argument_group('Inherited git-ls-tree arguments')

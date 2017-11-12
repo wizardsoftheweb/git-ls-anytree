@@ -1,3 +1,6 @@
-include git_ls_anytree/*
+include git_ls_anytree/*.py
+include git_ls_anytree/VERSION
 include LICENSE.rst
 include README.rst
+include tox.ini
+include setup.cfg

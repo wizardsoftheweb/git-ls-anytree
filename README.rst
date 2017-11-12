@@ -206,9 +206,12 @@ Options
 ``import``
 ~~~~~~~~~~
 
-Check out the last lines of ``cli_file.py`` (`source: <https://github.com/wizardsoftheweb/git-ls-anytree/tree/master/git_ls_anytree/cli_file.py#L95>`__) for a simple usage example:
+Check out the last lines of ``cli_file.py`` (`source <https://github.com/wizardsoftheweb/git-ls-anytree/tree/master/git_ls_anytree/cli_file.py#L95>`__) for a simple usage example:
 
 ::
+
+    ...
+    args = parser.parse_args(passed_args)
 
     full_tree = GitLsTree(
         tree_ish=args.tree_ish,

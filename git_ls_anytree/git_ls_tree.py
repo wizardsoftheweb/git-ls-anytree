@@ -65,6 +65,7 @@ class GitLsTree(GitLsTreeNode):
                 'type': node.item_type.ljust(6),
                 'object': node.git_object.ljust(40),
                 'size': node.git_object_size
+                'depth': node.depth
             }]
         for tree_line in output:
             tree_line['line'] = tree_line['line'].decode('utf-8').ljust(max_name_length).encode('utf-8')

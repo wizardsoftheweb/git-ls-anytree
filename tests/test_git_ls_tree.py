@@ -85,7 +85,7 @@ class QueryTreeIshUnitTests(GitLsTreeTestBase):
     def test_subprocess_integration(self):
         self.tree_instance.query_tree_ish()
         self.mock_sub.assert_called_once_with(
-            ['git', 'ls-tree', '-rtl', self.universal_tree_ish],
+            GitLsTree.BASE_GIT_LS_TREE_CALL + [self.universal_tree_ish],
             cwd=self.universal_working_dir
         )
 
@@ -97,7 +97,7 @@ class QueryTreeIshUnitTests(GitLsTreeTestBase):
     def test_subprocess_git_failure(self):
         error_dict = {
             'returncode': 128,
-            'cmd': ['git', 'ls-tree', 'mxyzptlk', '-rtl'],
+            'cmd': GitLsTree.BASE_GIT_LS_TREE_CALL + ['mxyzptlk'],
             'output': None
         }
         self.mock_sub.side_effect = CalledProcessError(**error_dict)

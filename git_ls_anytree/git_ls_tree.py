@@ -10,7 +10,7 @@ class GitLsTree(GitLsTreeNode):
     builds an anytree from the result
     """
 
-    def __init__(self, tree_ish='HEAD', path_in_tree_ish='', working_dir=getcwd()):
+    def __init__(self, tree_ish='HEAD', path_in_tree_ish='', working_dir=None):
         """Ctor with defaults
 
         Parameters:
@@ -19,7 +19,7 @@ class GitLsTree(GitLsTreeNode):
         working_dir - The location of the git repo to query; defaults to getcwd()
         """
         super(GitLsTree, self).__init__(name='root')
-        self.working_dir = working_dir
+        self.working_dir = working_dir if working_dir else getcwd()
         self.name = self.finalize_tree_ish(tree_ish, path_in_tree_ish)
         self.process_tree_ish()
 

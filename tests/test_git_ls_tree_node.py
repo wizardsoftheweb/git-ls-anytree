@@ -95,4 +95,7 @@ class WalkToParentNodeUnitTests(unittest.TestCase):
     def test_broken_tree_error(self):
         with self.assertRaises(BrokenTreeError) as context_manager:
             self.rootNode.walk_to_parent_node(['nope', 'file.ext'])
-        assert("The '' tree does not have a 'nope' subtree or blob" == context_manager.exception.__str__())
+        self.assertRegexpMatches(
+            context_manager.exception.__str__(),
+            r"The (?:root|'.*?') tree does not have a '.*?' subtree or blob"
+        )

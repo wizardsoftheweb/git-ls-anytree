@@ -178,7 +178,10 @@ class ParseTreeIshUnitTests(GitLsTreeTestBase):
                 for grand_children in immediate_child.children:
                     assert(2 == grand_children.depth)
 
-    # def test_broken_tree_error(self):
-    #     with self.assertRaises(BrokenTreeError) as context_manager:
-    #         self.tree_instance.parse_tree_ish(self.intentionally_broken_input)
-    #     assert("The '' tree does not have a 'nope' subtree or blob" == context_manager.exception.__str__())
+    def test_broken_tree_error(self):
+        with self.assertRaises(BrokenTreeError) as context_manager:
+            self.tree_instance.parse_tree_ish(self.intentionally_broken_input)
+        self.assertRegexpMatches(
+            context_manager.exception.__str__(),
+            r"The (?:root|'.*?') tree does not have a '.*?' subtree or blob"
+        )

@@ -76,4 +76,10 @@ class GitLsTree(GitLsTreeNode):
             if name_only:
                 print tree_line['line']
             else:
-                print '\t'.join(tree_line.values())
+                print '%s\t%s\t%s\t%s\t%s' % (
+                    tree_line['mode'],
+                    tree_line['type'],
+                    tree_line['object'],
+                    tree_line['size'],
+                    tree_line['line']
+                )

@@ -12,6 +12,12 @@ def cli():
     )
 
     parser.add_argument(
+        '--name-only', '--name-status',
+        action='store_true',
+        dest='name_only'
+    )
+
+    parser.add_argument(
         '-v', '--version',
         action='version',
         version='%s' % __version__

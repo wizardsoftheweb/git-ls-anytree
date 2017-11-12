@@ -1,13 +1,14 @@
+from git_ls_tree import GitLsTree
 from os import getcwd
 from os.path import join
-from git_ls_tree import GitLsTree
+from sys import argv
 
 import argparse
 
 with open(join('git_ls_anytree', 'VERSION')) as version_file:
     __version__ = version_file.read().strip()
 
-def cli():
+def cli(passed_args=argv[1:]):
     parser = argparse.ArgumentParser(
         description='Python tool to pretty-print git-ls-tree',
         epilog="""\
@@ -91,7 +92,7 @@ circumstances, --abbrev[=n] was split into --abbrev, for the default, and \
         help='Appends ( *@/) to filename per ls -F'
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(passed_args)
 
     full_tree = GitLsTree(
         tree_ish=args.tree_ish,

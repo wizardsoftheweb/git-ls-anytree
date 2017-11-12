@@ -56,6 +56,38 @@ class GitLsTreeNode(NodeMixin):
         if self.relative_path:
             self.exploded_path = convert_path_to_list(self.relative_path)
 
+    def classify(self, short=True):
+        """
+        `Stack Overflow coverage <https://stackoverflow.com/a/8347325/2877698>`__
+        """
+        value = {
+            '040000': {
+                'short': '/',
+                'long': 'directory'
+            },
+            '100644': {
+                'short': '',
+                'long': 'file'
+            },
+            '100664': {
+                'short': '',
+                'long': 'file'
+            },
+            '100755': {
+                'short': '*',
+                'long': 'executable'
+            },
+            '120000': {
+                'short': '@',
+                'long': 'symlink'
+            },
+            '160000': {
+                'short': '/',
+                'long': 'gitlink'
+            }
+        }[self.file_mode]
+        return value['short'] if short else value['long']
+
     def walk_to_parent_node(self, exploded_path):
         """Walks the branch until exploded_path is empty
 

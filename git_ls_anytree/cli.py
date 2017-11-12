@@ -1,3 +1,4 @@
+from os import getcwd
 from os.path import join
 from git_ls_anytree import GitLsTree
 
@@ -14,6 +15,35 @@ Due to known issues with nargs='?' consuming positionals under the right \
 circumstances, --abbrev[=n] was split into --abbrev, for the default, and \
 --abbrev-n INT, to specify a level.
 """
+    )
+
+    parser.add_argument(
+        '-v', '--version',
+        action='version',
+        version='%s' % __version__
+    )
+
+    parser.add_argument(
+        '-w', '--working-directory',
+        dest='working_directory',
+        default=getcwd(),
+        help='The directory to use for the git commands. Defaults to cwd (%s)' % (getcwd())
+    )
+
+    parser.add_argument(
+        'tree_ish',
+        metavar='tree-ish',
+        nargs='?',
+        type=str,
+        default='HEAD',
+        help='Reference to tree-ish'
+    )
+
+    parser.add_argument(
+        'patterns',
+        nargs='*',
+        default=[],
+        help='Subtrees within the main tree-ish'
     )
 
     git_args = parser.add_argument_group('Inherited git-ls-tree arguments')
@@ -60,28 +90,6 @@ circumstances, --abbrev[=n] was split into --abbrev, for the default, and \
         action='store_true',
         dest='classify',
         help='Appends ( *@/) to filename per ls -F'
-    )
-
-    parser.add_argument(
-        '-v', '--version',
-        action='version',
-        version='%s' % __version__
-    )
-
-    parser.add_argument(
-        'tree_ish',
-        metavar='tree-ish',
-        nargs='?',
-        type=str,
-        default='HEAD',
-        help='Reference to tree-ish'
-    )
-
-    parser.add_argument(
-        'patterns',
-        nargs='*',
-        default=[],
-        help='Subtrees within the main tree-ish'
     )
 
     args = parser.parse_args()

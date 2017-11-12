@@ -105,6 +105,3 @@ circumstances, --abbrev[=n] was split into --abbrev, for the default, and \
         name_only=args.name_only,
         classify=args.classify
     )
-
-if __name__ == '__main__':
-    cli()

@@ -23,7 +23,7 @@ class GitLsTree(GitLsTreeNode):
         self.name = self.finalize_tree_ish(tree_ish, path_in_tree_ish)
         self.process_tree_ish()
 
-    def finalize_tree_ish(self, tree_ish, path_in_tree_ish):
+    def finalize_tree_ish(self, tree_ish, path_in_tree_ish=''):
         """Combines input to tree_ish(:path_in_tree_ish)?"""
         return tree_ish + ((':' + path_in_tree_ish) if path_in_tree_ish else '')
 

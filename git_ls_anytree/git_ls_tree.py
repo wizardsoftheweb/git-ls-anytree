@@ -11,6 +11,8 @@ class GitLsTree(GitLsTreeNode):
     """
 
     BASE_GIT_LS_TREE_CALL = ['git', 'ls-tree', '-rtl', '--full-tree']
+    MINIMUM_ABBREV_JUSTIFICATION = 6
+    DEFAULT_ABBREV_LENGTH = 40
 
     def __init__(
         self,
@@ -38,9 +40,9 @@ class GitLsTree(GitLsTreeNode):
         self.extra_opts = ['-d'] if trees_only else []
         if abbrev:
             self.extra_opts += ['--abbrev=%s' % int(abbrev)] if 0 <= int(abbrev) else []
-            self.abbrev_length = int(abbrev) if 5 < int(abbrev) else 6
+            self.abbrev_justification = int(abbrev) if self.MINIMUM_ABBREV_JUSTIFICATION <= int(abbrev) else self.MINIMUM_ABBREV_JUSTIFICATION
         else:
-            self.abbrev_length = 40
+            self.abbrev_justification = self.DEFAULT_ABBREV_LENGTH
         self.process_tree_ish()
 
     def query_tree_ish(self):
@@ -80,7 +82,7 @@ class GitLsTree(GitLsTreeNode):
                 '_': _,
                 'mode': node.file_mode.ljust(6),
                 'type': node.item_type.ljust(6),
-                'object': node.git_object.ljust(self.abbrev_length),
+                'object': node.git_object.ljust(self.abbrev_justification),
                 'size': node.git_object_size,
                 'depth': node.depth
             }]

@@ -10,6 +10,8 @@
 
 ``git-ls-anytree`` provides ``tree``-like output from ``git`` tree(ish)s.
 
+Until ``v1``, the API might change slightly as I add more options and streamline what I've got.
+
 .. contents::
 
 Overview
@@ -181,9 +183,7 @@ Options
       -h, --help            show this help message and exit
       -v, --version         show program's version number and exit
       -w WORKING_DIRECTORY, --working-directory WORKING_DIRECTORY
-                            The directory to use for the git commands. Defaults to
-                            cwd (/mnt/c/Users/thecj/Code/@wizardsoftheweb/git-ls-
-                            anytree)
+                            The directory to use for the git commands. Defaults to cwd (path/to/cwd)
 
     Inherited git-ls-tree arguments:
       --name-only, --name-status
@@ -230,7 +230,9 @@ More here later.
 Roadmap
 -------
 
+These are all things I'd like to have finished before tagging ``v1``.
+
 * Build and install ``man`` page
-
-
-
+* Compile docs
+* Test docs
+* Clean up ``tests``

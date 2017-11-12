@@ -20,19 +20,16 @@ class GitLsTree(GitLsTreeNode):
         """
         super(GitLsTree, self).__init__(name='root')
         self.working_dir = working_dir if working_dir else getcwd()
-        self.name = self.finalize_tree_ish(tree_ish, subtrees)
+        self.name = tree_ish
+        self.subtrees = subtrees
         self.process_tree_ish()
-
-    def finalize_tree_ish(self, tree_ish, subtrees=[]):
-        """Combines input to tree_ish(:path_in_tree_ish)?"""
-        return tree_ish + ((' ' + subtrees.join(' ')) if 0 < len(subtrees) else '')
 
     def query_tree_ish(self):
         """Spawns a subprocess to in working_dir to run git ls-tree; strips and
         splits the result
         """
         raw_blob = check_output(
-            ['git', 'ls-tree', self.name, '-rtl'],
+            ['git', 'ls-tree', '-rtl', self.name] + self.subtrees,
             cwd=self.working_dir
         )
         return raw_blob.strip().split('\n')

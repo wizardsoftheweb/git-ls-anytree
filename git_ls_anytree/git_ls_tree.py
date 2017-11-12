@@ -34,7 +34,11 @@ class GitLsTree(GitLsTreeNode):
         self.git_object_size = 'size'
         self.patterns = patterns
         self.extra_opts = ['-d'] if trees_only else []
-        self.extra_opts += ['--abbrev=%s' % abbrev] if 4 < abbrev else []
+        self.extra_opts += ['--abbrev=%s' % int(abbrev)] if 0 <= int(abbrev) else []
+        if abbrev:
+            self.abbrev_length = int(abbrev) if 5 < int(abbrev) else 6
+        else:
+            self.abbrev_length = 40
         self.process_tree_ish()
 
     def query_tree_ish(self):
@@ -74,7 +78,7 @@ class GitLsTree(GitLsTreeNode):
                 '_': _,
                 'mode': node.file_mode.ljust(6),
                 'type': node.item_type.ljust(6),
-                'object': node.git_object.ljust(40),
+                'object': node.git_object.ljust(self.abbrev_length),
                 'size': node.git_object_size,
                 'depth': node.depth
             }]

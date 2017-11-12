@@ -10,7 +10,7 @@ class GitLsTree(GitLsTreeNode):
     builds an anytree from the result
     """
 
-    def __init__(self, tree_ish='HEAD', subtrees=[], working_dir=None):
+    def __init__(self, tree_ish='HEAD', patterns=[], working_dir=None):
         """Ctor with defaults
 
         Parameters:
@@ -21,7 +21,7 @@ class GitLsTree(GitLsTreeNode):
         super(GitLsTree, self).__init__(name='root')
         self.working_dir = working_dir if working_dir else getcwd()
         self.name = tree_ish
-        self.subtrees = subtrees
+        self.patterns = patterns
         self.process_tree_ish()
 
     def query_tree_ish(self):
@@ -29,7 +29,7 @@ class GitLsTree(GitLsTreeNode):
         splits the result
         """
         raw_blob = check_output(
-            ['git', 'ls-tree', '-rtl', self.name] + self.subtrees,
+            ['git', 'ls-tree', '-rtl', self.name] + self.patterns,
             cwd=self.working_dir
         )
         return raw_blob.strip().split('\n')

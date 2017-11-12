@@ -39,17 +39,19 @@ class ConstructorUnitTests(GitLsTreeTestBase):
         tree_instance = GitLsTree()
         self.mock_process.assert_called_once_with()
 
-# class FinalizeTreePathUnitTests(GitLsTreeTestBase):
-#     def setUp(self):
-#         finalize_patcher = patch.object(GitLsTree, 'finalize_tree_ish', return_value=self.universal_tree_ish)
-#         self.mock_finalize = finalize_patcher.start()
-#         process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
-#         self.mock_process = process_patcher.start()
-#         self.tree_instance = GitLsTree()
-#         finalize_patcher.stop()
-#         process_patcher.stop()
+class FinalizeTreeIshUnitTests(GitLsTreeTestBase):
+    def setUp(self):
+        finalize_patcher = patch.object(GitLsTree, 'finalize_tree_ish', return_value=self.universal_tree_ish)
+        self.mock_finalize = finalize_patcher.start()
+        process_patcher = patch.object(GitLsTree, 'process_tree_ish', return_value=None)
+        self.mock_process = process_patcher.start()
+        self.tree_instance = GitLsTree()
+        finalize_patcher.stop()
+        process_patcher.stop()
 
+    def test_with_reference_only(self):
+        assert(self.universal_tree_ish == self.tree_instance.finalize_tree_ish(self.universal_tree_ish))
+        assert(self.universal_tree_ish == self.tree_instance.finalize_tree_ish(self.universal_tree_ish, ''))
 
-#     def test_with_reference_only(self):
-#         assert(self.universal_tree_ish == self.tree_instance.finalize_tree_ish(self.universal_tree_ish))
-#         assert(self.universal_tree_ish == self.tree_instance.finalize_tree_ish(self.universal_tree_ish, ''))
+    def test_with_reference_only(self):
+        assert(u"'%s:%s' == self.tree_instance.finalize_tree_ish(self.universal_tree_ish, self.universal_working_dir)" % (self.universal_tree_ish, self.universal_working_dir))

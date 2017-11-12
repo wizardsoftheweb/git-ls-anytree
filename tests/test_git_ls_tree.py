@@ -12,6 +12,9 @@ class GitLsTreeTestBase(unittest.TestCase):
     universal_tree_ish = 'qqq'
     universal_working_dir = 'local/path'
 
+    def wipe_tree_instance(self):
+        del self.tree_instance
+
     def create_tree_instance(self):
         getcwd_patcher = patch('git_ls_anytree.git_ls_tree.getcwd', return_value=self.universal_working_dir)
         self.mock_cwd = getcwd_patcher.start()
@@ -20,6 +23,7 @@ class GitLsTreeTestBase(unittest.TestCase):
         process_patcher.start()
         self.tree_instance = GitLsTree(self.universal_tree_ish)
         process_patcher.stop()
+        self.addCleanup(self.wipe_tree_instance)
 
 class ConstructorUnitTests(GitLsTreeTestBase):
     def setUp(self):
@@ -196,7 +200,6 @@ class RenderToListUnitTests(GitLsTreeTestBase):
 
     def setUp(self):
         self.create_tree_instance()
-        # self.tree_instance.parse_tree_ish(self.exploded_input)
 
     def test_line_encoding(self):
         self.tree_instance.parse_tree_ish(self.exploded_input)

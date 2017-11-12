@@ -25,6 +25,13 @@ def cli():
     )
 
     parser.add_argument(
+        '-d', '--trees-only',
+        action='store_true',
+        dest='trees_only',
+        help='Only print trees per git-ls-tree -d'
+    )
+
+    parser.add_argument(
         '-v', '--version',
         action='version',
         version='%s' % __version__
@@ -48,7 +55,8 @@ def cli():
     args = parser.parse_args()
     full_tree = GitLsTree(
         tree_ish=args.TreeIsh,
-        patterns=args.Patterns
+        patterns=args.Patterns,
+        trees_only=args.trees_only
     )
     full_tree.pretty_print(
         name_only=args.name_only,

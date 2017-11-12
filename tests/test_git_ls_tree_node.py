@@ -2,18 +2,9 @@ from git_ls_anytree import GitLsTreeNode, BrokenTreeError
 from mock import MagicMock, patch
 import unittest
 
-# Have to get the whole module to get patch to work correctly
-# import git_ls_anytree
-import os.path
-
-
 class ConstructorUnitTests(unittest.TestCase):
-    universal_basename = 'qqq'
     def setUp(self):
         self.dummy_input = 'qqq'
-        basename_patcher = patch.object(os.path, 'basename', return_value=self.universal_basename)
-        self.mock_basename = basename_patcher.start()
-        self.addCleanup(basename_patcher.stop)
         self.process_patcher = patch.object(GitLsTreeNode, 'process_raw_git_output', return_value=None)
         self.mock_process = self.process_patcher.start()
         self.addCleanup(self.process_patcher.stop)
@@ -32,7 +23,6 @@ class ConstructorUnitTests(unittest.TestCase):
             assert(getattr(tree_instance, key) == '')
         for list_key in ['exploded_path', 'children']:
             assert(len(getattr(tree_instance, list_key)) == 0)
-
 
 class ProcessRawGitOutputUnitTests(unittest.TestCase):
     universal_basename = 'qqq'
@@ -106,10 +96,3 @@ class WalkToParentNodeUnitTests(unittest.TestCase):
         with self.assertRaises(BrokenTreeError) as context_manager:
             self.rootNode.walk_to_parent_node(['nope', 'file.ext'])
         assert("The '' tree does not have a 'nope' subtree or blob" == context_manager.exception.__str__())
-
-
-# Truly necessary?
-GitLsTreeNodeUnitSuite = unittest.TestSuite([
-    unittest.TestLoader().loadTestsFromTestCase(ConstructorUnitTests),
-    unittest.TestLoader().loadTestsFromTestCase(ProcessRawGitOutputUnitTests)
-])

@@ -10,7 +10,7 @@ class GitLsTree(GitLsTreeNode):
     builds an anytree from the result
     """
 
-    def __init__(self, tree_ish='HEAD', patterns=[], working_dir=None):
+    def __init__(self, tree_ish='HEAD', patterns=[], trees_only=False, working_dir=None):
         """Ctor with defaults
 
         Parameters:
@@ -26,6 +26,7 @@ class GitLsTree(GitLsTreeNode):
         self.git_object = 'object'
         self.git_object_size = 'size'
         self.patterns = patterns
+        self.extra_opts = ['-d'] if trees_only else []
         self.process_tree_ish()
 
     def query_tree_ish(self):
@@ -33,7 +34,7 @@ class GitLsTree(GitLsTreeNode):
         splits the result
         """
         raw_blob = check_output(
-            ['git', 'ls-tree', '-rtl', '--full-tree', self.name] + self.patterns,
+            ['git', 'ls-tree', '-rtl', '--full-tree'] + self.extra_opts + [self.name] + self.patterns,
             cwd=self.working_dir
         )
         return raw_blob.strip().split('\n')
@@ -62,6 +63,7 @@ class GitLsTree(GitLsTreeNode):
             max_size_length = len(node.git_object_size) if max_size_length < len(node.git_object_size) else max_size_length
             output += [{
                 'line': current_node,
+                '_': _,
                 'mode': node.file_mode.ljust(6),
                 'type': node.item_type.ljust(6),
                 'object': node.git_object.ljust(40),

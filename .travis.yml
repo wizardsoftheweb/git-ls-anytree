@@ -15,6 +15,5 @@ install:
 script:
   - tox
 
-# TODO: enable once a module is added
-# after_script:
-#   - coveralls
+after_script:
+  - coveralls

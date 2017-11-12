@@ -14,6 +14,9 @@ class GitLsTreeTestBase(unittest.TestCase):
 
 class ConstructorUnitTests(GitLsTreeTestBase):
     def setUp(self):
+        node_patcher = patch('git_ls_anytree.git_ls_tree.GitLsTreeNode', wraps=GitLsTreeNode)
+        self.mock_nodes = node_patcher.start()
+        self.addCleanup(node_patcher.stop)
         getcwd_patcher = patch('git_ls_anytree.git_ls_tree.getcwd', return_value=self.universal_working_dir)
         self.mock_cwd = getcwd_patcher.start()
         self.addCleanup(getcwd_patcher.stop)
@@ -24,27 +27,30 @@ class ConstructorUnitTests(GitLsTreeTestBase):
         self.mock_process = process_patcher.start()
         self.addCleanup(process_patcher.stop)
 
+    def tearDown(self):
+        del self.tree_instance
+
     def test_working_dir(self):
-        tree_instance = GitLsTree()
-        assert(getattr(tree_instance, 'working_dir') == self.universal_working_dir)
+        self.tree_instance = GitLsTree()
+        assert(getattr(self.tree_instance, 'working_dir') == self.universal_working_dir)
         not_default_path = 'some/other/path'
-        tree_instance = GitLsTree(working_dir=not_default_path)
-        assert(getattr(tree_instance, 'working_dir') == not_default_path)
+        self.tree_instance = GitLsTree(working_dir=not_default_path)
+        assert(getattr(self.tree_instance, 'working_dir') == not_default_path)
 
     def test_finalized_tree_ish(self):
-        tree_instance = GitLsTree()
+        self.tree_instance = GitLsTree()
         self.mock_finalize.assert_called_once_with('HEAD', '')
         self.mock_finalize.reset_mock()
-        tree_instance = GitLsTree(self.universal_tree_ish, self.universal_working_dir)
+        self.tree_instance = GitLsTree(self.universal_tree_ish, self.universal_working_dir)
         self.mock_finalize.assert_called_once_with(self.universal_tree_ish, self.universal_working_dir)
 
     def test_tree_ish_is_processed(self):
-        tree_instance = GitLsTree()
+        self.tree_instance = GitLsTree()
         self.mock_process.assert_called_once_with()
 
-    # def test_assigned_name(self):
-    #     tree_instance = GitLsTree()
-    #     assert('root' == getattr(tree_instance, 'name'))
+    def test_assigned_name(self):
+        self.tree_instance = GitLsTree()
+        assert(self.universal_tree_ish == self.tree_instance.name)
 
 class FinalizeTreeIshUnitTests(GitLsTreeTestBase):
     def setUp(self):

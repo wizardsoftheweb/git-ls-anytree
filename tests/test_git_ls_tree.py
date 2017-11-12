@@ -1,4 +1,3 @@
-from anytree import RenderTree
 from git_ls_anytree import BrokenTreeError, GitLsTree, GitLsTreeNode
 from mock import call, MagicMock, patch
 from re import search

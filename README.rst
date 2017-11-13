@@ -241,3 +241,4 @@ These are all things I'd like to have finished before tagging ``v1``.
 * Test docs
 * Clean up ``tests``
 * Code Climate, Hound, something of that nature
+* Refactor the ``pylint`` refactor issues

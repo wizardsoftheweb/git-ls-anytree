@@ -3,7 +3,7 @@
 from os import getcwd
 from subprocess import check_output
 
-from anytree import NodeMixin, RenderTree
+from anytree import RenderTree
 from git_ls_anytree.git_ls_tree_node import GitLsTreeNode
 
 class GitLsTree(GitLsTreeNode):

@@ -1,3 +1,5 @@
+"""This file provides convert_path_to_list"""
+
 from os.path import split
 
 def convert_path_to_list(path_to_explode):

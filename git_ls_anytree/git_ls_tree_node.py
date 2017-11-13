@@ -15,28 +15,23 @@ class GitLsTreeNode(NodeMixin):
     """
 
     FULL_GIT_PATTERN = r"""
-^(                          # Match from the beginning of the line
-    ?P<file_mode>           # Name the file_mode group
+^(?P<file_mode>             # Name the file_mode group
     \d{6}                   # git modes are six-digit numbers
 )
 \s+
-(
-    ?P<item_type>           # Name the item_type group
+(?P<item_type>              # Name the item_type group
     blob|tree|commit        # list of possible git items
 )
 \s+
-(
-    ?P<git_object>          # Name the git_object group
+(?P<git_object>             # Name the git_object group
     \w+                     # The hash could be 4-40 characters, maybe more
 )
 \s+
-(
-    ?P<git_object_size>     # Name the git_object_size group
+(?P<git_object_size>        # Name the git_object_size group
     [\d\-]+                 # The size in bytes of the object
 )
 \s+
-(
-    ?P<relative_path>       # Name the relative_path group
+(?P<relative_path>          # Name the relative_path group
     .*                      # Anything else until the end of the line is the path
 )$
 """

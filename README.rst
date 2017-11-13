@@ -1,5 +1,4 @@
-If this message is still the README, the package doesn't have a stable
-version yet. Check other branches for release candidates.
+Until ``v1``, this branch won't be updated often. Check out the ``dev`` (`source <https://github.com/wizardsoftheweb/git-ls-anytree/tree/dev>`__) branch or the `tags <https://github.com/wizardsoftheweb/git-ls-anytree/tags>`__ for active code.
 
 References
 ----------

@@ -50,7 +50,7 @@ The directory to use for the git commands. Defaults to cwd (%s)
     parser.add_argument(
         'patterns',
         nargs='*',
-        default=[],
+        default=None,
         help='Subtrees within the main tree-ish'
     )
 
@@ -102,6 +102,8 @@ Equivalent to git-ls-tree --abbrev. Uses the default git short hash of seven cha
     )
 
     args = parser.parse_args(passed_args)
+    if 0 == len(args.patterns):
+        args.patterns = None
 
     full_tree = GitLsTree(
         tree_ish=args.tree_ish,

@@ -1,3 +1,5 @@
+"""Package git-ls-anytree runs git-ls-tree through anytree"""
+
 from .convert_path_to_list import convert_path_to_list
 from .local_exceptions import BrokenTreeError
 from .git_ls_tree_node import GitLsTreeNode

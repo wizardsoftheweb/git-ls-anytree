@@ -8,7 +8,7 @@ setup(
     version=__version__,
     entry_points={
         'console_scripts': [
-            'git-ls-anytree = git_ls_anytree.cli_file:cli'
+            'git_ls_anytree = git_ls_anytree.cli_file:cli'
         ]
     }
 )

@@ -1,3 +1,6 @@
+.. image:: https://badge.fury.io/py/git-ls-anytree.svg
+    :target: https://badge.fury.io/py/git-ls-anytree
+
 .. image:: https://travis-ci.org/wizardsoftheweb/git-ls-anytree.svg?branch=master
     :target: https://travis-ci.org/wizardsoftheweb/git-ls-anytree
 

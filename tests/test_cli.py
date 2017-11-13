@@ -20,7 +20,7 @@ class CliUnitTests(unittest.TestCase):
         cli([])
         self.mock_tree.assert_any_call(
             tree_ish='HEAD',
-            patterns=[],
+            patterns=None,
             trees_only=False,
             working_dir=self.universal_working_dir,
             abbrev=None

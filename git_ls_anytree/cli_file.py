@@ -1,12 +1,19 @@
-from git_ls_tree import GitLsTree
-from __version__ import __version__
+"""This file provides cli, a function that can run the package from the CLI"""
+
 from os import getcwd
-from os.path import join
 from sys import argv
 
 import argparse
 
+from git_ls_anytree.git_ls_tree import GitLsTree
+from git_ls_anytree.__version__ import __version__
+
 def cli(passed_args=argv[1:]):
+    """Bootstraps a GitLsTree with the provided arguments
+
+    Parameters:
+    passed_args - The arguments to parse; defaults to argv[1:]
+    """
     parser = argparse.ArgumentParser(
         description='Python tool to pretty-print git-ls-tree',
         epilog="""\
@@ -26,7 +33,9 @@ circumstances, --abbrev[=n] was split into --abbrev, for the default, and \
         '-w', '--working-directory',
         dest='working_directory',
         default=getcwd(),
-        help='The directory to use for the git commands. Defaults to cwd (%s)' % (getcwd())
+        help="""\
+The directory to use for the git commands. Defaults to cwd (%s)
+""" % (getcwd())
     )
 
     parser.add_argument(
@@ -41,7 +50,7 @@ circumstances, --abbrev[=n] was split into --abbrev, for the default, and \
     parser.add_argument(
         'patterns',
         nargs='*',
-        default=[],
+        default=None,
         help='Subtrees within the main tree-ish'
     )
 
@@ -63,7 +72,9 @@ circumstances, --abbrev[=n] was split into --abbrev, for the default, and \
         dest='abbrev',
         action='store_const',
         const=7,
-        help='Equivalent to git-ls-tree --abbrev. Uses the default git short hash of seven characters.'
+        help="""\
+Equivalent to git-ls-tree --abbrev. Uses the default git short hash of seven characters.
+"""
     )
 
     git_abbrev_group.add_argument(
@@ -91,6 +102,8 @@ circumstances, --abbrev[=n] was split into --abbrev, for the default, and \
     )
 
     args = parser.parse_args(passed_args)
+    if 0 == len(args.patterns):
+        args.patterns = None
 
     full_tree = GitLsTree(
         tree_ish=args.tree_ish,

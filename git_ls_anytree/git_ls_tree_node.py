@@ -1,8 +1,11 @@
-from anytree import NodeMixin
-from convert_path_to_list import convert_path_to_list
-from local_exceptions import BrokenTreeError
+"""This file provides the GitLsTreeNode class"""
+
 from os.path import basename
-from re import match
+from re import match, VERBOSE
+
+from anytree import NodeMixin
+from git_ls_anytree.convert_path_to_list import convert_path_to_list
+from git_ls_anytree.local_exceptions import BrokenTreeError
 
 class GitLsTreeNode(NodeMixin):
     """This class holds the methods necessary to create a node in the tree.
@@ -11,11 +14,31 @@ class GitLsTreeNode(NodeMixin):
     parses the raw git output, and can search its children for specific nodes.
     """
 
+    FULL_GIT_PATTERN = r"""
+^(?P<file_mode>             # Name the file_mode group
+    \d{6}                   # git modes are six-digit numbers
+)
+\s+
+(?P<item_type>              # Name the item_type group
+    blob|tree|commit        # list of possible git items
+)
+\s+
+(?P<git_object>             # Name the git_object group
+    \w+                     # The hash could be 4-40 characters, maybe more
+)
+\s+
+(?P<git_object_size>        # Name the git_object_size group
+    [\d\-]+                 # The size in bytes of the object
+)
+\s+
+(?P<relative_path>          # Name the relative_path group
+    .*                      # Anything else until the end of the line is the path
+)$
+"""
     """This regex is used to parse the raw git output.
 
     `Official docs <https://git-scm.com/docs/git-ls-tree#_output_format>`__
     """
-    FULL_GIT_PATTERN = r'^(?P<file_mode>\d{6})\s+(?P<item_type>blob|tree|commit)\s+(?P<git_object>\w+)\s+(?P<git_object_size>[\d\-]+)\s+(?P<relative_path>.*)$'
 
     def __init__(self, raw_git_output='', name='', parent=None):
         """Simple ctor; delegates processing to child methods
@@ -45,14 +68,38 @@ class GitLsTreeNode(NodeMixin):
         raw_git_output - The raw line from git (most likely via STDOUT)
         """
         self.raw = raw_git_output
-        processed_groups = match(GitLsTreeNode.FULL_GIT_PATTERN, raw_git_output)
+        processed_groups = match(GitLsTreeNode.FULL_GIT_PATTERN, raw_git_output, VERBOSE)
         if processed_groups:
-            self.file_mode = processed_groups.group('file_mode') if processed_groups.group('file_mode') else self.file_mode
-            self.item_type = processed_groups.group('item_type') if processed_groups.group('item_type') else self.item_type
-            self.git_object = processed_groups.group('git_object') if processed_groups.group('git_object') else self.git_object
-            self.git_object_size = processed_groups.group('git_object_size') if processed_groups.group('git_object_size') else self.git_object_size
-            self.relative_path = processed_groups.group('relative_path') if processed_groups.group('relative_path') else self.relative_path
-            self.basename = basename(processed_groups.group('relative_path')) if processed_groups.group('relative_path') else self.basename
+            self.file_mode = (
+                processed_groups.group('file_mode')
+                if processed_groups.group('file_mode')
+                else self.file_mode
+            )
+            self.item_type = (
+                processed_groups.group('item_type')
+                if processed_groups.group('item_type')
+                else self.item_type
+            )
+            self.git_object = (
+                processed_groups.group('git_object')
+                if processed_groups.group('git_object')
+                else self.git_object
+            )
+            self.git_object_size = (
+                processed_groups.group('git_object_size')
+                if processed_groups.group('git_object_size')
+                else self.git_object_size
+            )
+            self.relative_path = (
+                processed_groups.group('relative_path')
+                if processed_groups.group('relative_path')
+                else self.relative_path
+            )
+            self.basename = (
+                basename(processed_groups.group('relative_path'))
+                if processed_groups.group('relative_path')
+                else self.basename
+            )
         if self.relative_path:
             self.exploded_path = convert_path_to_list(self.relative_path)
 

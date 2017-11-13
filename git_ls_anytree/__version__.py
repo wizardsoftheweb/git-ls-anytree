@@ -1,3 +1,5 @@
+"""Loads and provides the package version"""
+
 from os import getcwd
 from os.path import join, dirname, realpath
 

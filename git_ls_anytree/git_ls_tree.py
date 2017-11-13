@@ -1,7 +1,10 @@
-from anytree import NodeMixin, RenderTree
-from git_ls_tree_node import GitLsTreeNode
+"""This file provides GitLsTree"""
+
 from os import getcwd
 from subprocess import check_output
+
+from anytree import RenderTree
+from git_ls_anytree.git_ls_tree_node import GitLsTreeNode
 
 class GitLsTree(GitLsTreeNode):
     """This class builds an anytree from git ls-tree
@@ -15,13 +18,13 @@ class GitLsTree(GitLsTreeNode):
     DEFAULT_ABBREV_LENGTH = 40
 
     def __init__(
-        self,
-        tree_ish='HEAD',
-        patterns=[],
-        trees_only=False,
-        working_dir=None,
-        abbrev=None
-    ):
+            self,
+            tree_ish='HEAD',
+            patterns=None,
+            trees_only=False,
+            working_dir=None,
+            abbrev=None
+        ):
         """Ctor with defaults
 
         Parameters:
@@ -36,11 +39,19 @@ class GitLsTree(GitLsTreeNode):
         self.item_type = 'type'
         self.git_object = 'object'
         self.git_object_size = 'size'
-        self.patterns = patterns
+        self.patterns = (
+            patterns
+            if patterns
+            else []
+        )
         self.extra_opts = ['-d'] if trees_only else []
         if abbrev:
             self.extra_opts += ['--abbrev=%s' % int(abbrev)] if 0 <= int(abbrev) else []
-            self.abbrev_justification = int(abbrev) if self.MINIMUM_ABBREV_JUSTIFICATION <= int(abbrev) else self.MINIMUM_ABBREV_JUSTIFICATION
+            self.abbrev_justification = (
+                int(abbrev)
+                if self.MINIMUM_ABBREV_JUSTIFICATION <= int(abbrev)
+                else self.MINIMUM_ABBREV_JUSTIFICATION
+            )
         else:
             self.abbrev_justification = self.DEFAULT_ABBREV_LENGTH
         self.process_tree_ish()
@@ -67,6 +78,7 @@ class GitLsTree(GitLsTreeNode):
         self.parse_tree_ish(raw_git)
 
     def render_to_list(self, classify=False):
+        """Renders the full anytree to a list with important variables"""
         max_name_length = 0
         max_size_length = 0
         output = []
@@ -75,8 +87,16 @@ class GitLsTree(GitLsTreeNode):
             classification = node.classify(short=True) if classify else ''
             current_node = (u'%s%s%s' % (pre, printed_name, classification)).encode('utf-8')
             current_name_length = len(current_node.decode('utf-8'))
-            max_name_length = current_name_length if max_name_length < current_name_length else max_name_length
-            max_size_length = len(node.git_object_size) if max_size_length < len(node.git_object_size) else max_size_length
+            max_name_length = (
+                current_name_length
+                if max_name_length < current_name_length
+                else max_name_length
+            )
+            max_size_length = (
+                len(node.git_object_size)
+                if max_size_length < len(node.git_object_size)
+                else max_size_length
+            )
             output += [{
                 'line': current_node,
                 '_': _,
@@ -87,11 +107,17 @@ class GitLsTree(GitLsTreeNode):
                 'depth': node.depth
             }]
         for tree_line in output:
-            tree_line['line'] = tree_line['line'].decode('utf-8').ljust(max_name_length).encode('utf-8')
+            tree_line['line'] = (
+                tree_line['line']
+                .decode('utf-8')
+                .ljust(max_name_length)
+                .encode('utf-8')
+            )
             tree_line['size'] = tree_line['size'].rjust(max_size_length)
         return output
 
     def pretty_print(self, name_only=False, classify=False):
+        """Prints the rendered list"""
         for tree_line in self.render_to_list(classify):
             if name_only:
                 print tree_line['line']

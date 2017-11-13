@@ -78,6 +78,7 @@ class GitLsTree(GitLsTreeNode):
         self.parse_tree_ish(raw_git)
 
     def render_to_list(self, classify=False):
+        """Renders the full anytree to a list with important variables"""
         max_name_length = 0
         max_size_length = 0
         output = []
@@ -116,6 +117,7 @@ class GitLsTree(GitLsTreeNode):
         return output
 
     def pretty_print(self, name_only=False, classify=False):
+        """Prints the rendered list"""
         for tree_line in self.render_to_list(classify):
             if name_only:
                 print tree_line['line']

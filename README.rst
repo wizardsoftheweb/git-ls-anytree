@@ -140,12 +140,12 @@ Usage
 CLI
 ~~~
 
-Installation via ``pip`` should add an executable to your ``PATH``.
+Installation via ``pip`` should add an executable to your ``PATH`` (you might need to add ``$HOME/.local/bin`` to your ``PATH`` first if you used ``--user``).
 
 ::
 
     $ which git-ls-anytree
-    /usr/local/bin/git-ls-anytree
+    /home/user/.local/bin/git-ls-anytree
 
 This should register it with ``git``, which you can check with ``git help -a``
 

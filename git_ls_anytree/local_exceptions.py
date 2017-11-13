@@ -1,3 +1,5 @@
+"""This file provides the BrokenTreeError exception"""
+
 class BrokenTreeError(Exception):
     """Raised when an unknown child appears while processing a tree
 

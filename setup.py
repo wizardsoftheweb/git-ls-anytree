@@ -8,6 +8,10 @@ setup(
     name='git_ls_anytree',
     version=__version__,
     packages=find_packages(),
+    package_data={
+        '': ['VERSION']
+    },
+    include_package_data=True,
     entry_points={
         'console_scripts': [
             'git-ls-anytree = git_ls_anytree.cli_file:cli'

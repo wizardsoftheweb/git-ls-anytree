@@ -29,7 +29,8 @@ Installation
 
 ::
 
-    pip install --user git_ls_anytree
+    $ pip install --user git-ls-anytree
+    # or whatever; the number of ways to install things is fairly large
 
 Tests
 ~~~~~

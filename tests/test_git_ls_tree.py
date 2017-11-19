@@ -1,12 +1,14 @@
-from git_ls_anytree import BrokenTreeError, GitLsTree, GitLsTreeNode
-from mock import call, MagicMock, patch
+"""Contains all the unit tests for GitLsTree"""
+from collections import namedtuple
 from re import search
+from subprocess import CalledProcessError
 
 import unittest
-import os
 import sys
 
-from subprocess import CalledProcessError, check_output
+from mock import call, MagicMock, patch
+
+from git_ls_anytree import BrokenTreeError, GitLsTree, GitLsTreeNode
 
 class GitLsTreeTestBase(unittest.TestCase):
     universal_tree_ish = 'qqq'

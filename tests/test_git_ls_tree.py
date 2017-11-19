@@ -70,6 +70,23 @@ class ConstructorUnitTests(GitLsTreeTestBase):
         assert(GitLsTree.MINIMUM_ABBREV_JUSTIFICATION == self.tree_instance.abbrev_justification)
         assert(['--abbrev=3'] == self.tree_instance.extra_opts)
 
+
+dummyTree = namedtuple('DummyTree', ['name', 'item_type'])
+class GitDefaultSortTests(GitLsTreeTestBase):
+    input = [
+        dummyTree('z', 'blob'),
+        dummyTree('y', 'blob'),
+        dummyTree('x', 'blob')
+    ]
+
+    def setUp(self):
+        self.create_tree_instance()
+
+    def test_sort_does_nothing(self):
+        output = self.tree_instance.git_default_sort(self.input)
+        for index, value in enumerate(output):
+            assert(value == self.input[index])
+
 class QueryTreeIshUnitTests(GitLsTreeTestBase):
     number_of_git_lines = 20
     git_raw_output = """

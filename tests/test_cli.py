@@ -23,7 +23,8 @@ class CliUnitTests(unittest.TestCase):
             patterns=None,
             trees_only=False,
             working_dir=self.universal_working_dir,
-            abbrev=None
+            abbrev=None,
+            item_sort=None
         )
         self.mock_tree().pretty_print.assert_any_call(
             name_only=False,

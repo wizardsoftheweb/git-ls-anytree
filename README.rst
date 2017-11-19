@@ -174,8 +174,8 @@ Options
 ::
 
     usage: git-ls-anytree [-h] [-v] [-w WORKING_DIRECTORY] [--name-only]
-                          [--abbrev | --abbrev-n ABBREV] [-d] [-F]
-                          [tree-ish] [patterns [patterns ...]]
+                      [--abbrev | --abbrev-n ABBREV] [-d] [-F] [--dirsfirst]
+                      [tree-ish] [patterns [patterns ...]]
 
     Python tool to pretty-print git-ls-tree
 
@@ -187,7 +187,9 @@ Options
       -h, --help            show this help message and exit
       -v, --version         show program's version number and exit
       -w WORKING_DIRECTORY, --working-directory WORKING_DIRECTORY
-                            The directory to use for the git commands. Defaults to cwd (path/to/cwd)
+                            The directory to use for the git commands. Defaults to
+                            cwd (/mnt/c/Users/thecj/Code/@wizardsoftheweb/git_ls_a
+                            nytree)
 
     Inherited git-ls-tree arguments:
       --name-only, --name-status
@@ -201,10 +203,13 @@ Options
 
     Inherited tree arguments:
       -F, --classify        Appends ( *@/) to filename per ls -F
+      --dirsfirst           Displays directories (tree, commit) before files
+                            (blob)
 
     Due to known issues with nargs='?' consuming positionals under the right
     circumstances, --abbrev[=n] was split into --abbrev, for the default, and
     --abbrev-n INT, to specify a level.
+
 
 
 ``import``
@@ -222,7 +227,8 @@ Check out the last lines of ``cli_file.py`` (`source <https://github.com/wizards
         patterns=args.patterns,
         trees_only=args.trees_only,
         working_dir=args.working_directory,
-        abbrev=args.abbrev if hasattr(args, 'abbrev') else None
+        abbrev=args.abbrev if hasattr(args, 'abbrev') else None,
+        item_sort=args.item_sort
     )
     full_tree.pretty_print(
         name_only=args.name_only,

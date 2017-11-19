@@ -104,4 +104,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Personal stuff
 *.sublime-*
+scratch.py

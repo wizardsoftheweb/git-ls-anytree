@@ -17,13 +17,35 @@ class GitLsTree(GitLsTreeNode):
     MINIMUM_ABBREV_JUSTIFICATION = 6
     DEFAULT_ABBREV_LENGTH = 40
 
+    @staticmethod
+    def git_default_sort(items):
+        """Returns the items without any sorting"""
+        return items
+
+    @staticmethod
+    def dirs_first_sort(items):
+        """Returns the items with trees and commits sorted before blobs"""
+        blobs = []
+        not_blobs = []
+        for item in items:
+            if 'blob' == item.item_type:
+                blobs.append(item)
+            else:
+                not_blobs.append(item)
+        sort_key = lambda named_item: named_item.name
+        return (
+            sorted(not_blobs, key=sort_key)
+            + sorted(blobs, key=sort_key)
+        )
+
     def __init__(
             self,
             tree_ish='HEAD',
             patterns=None,
             trees_only=False,
             working_dir=None,
-            abbrev=None
+            abbrev=None,
+            item_sort=None
         ):
         """Ctor with defaults
 
@@ -43,6 +65,11 @@ class GitLsTree(GitLsTreeNode):
             patterns
             if patterns
             else []
+        )
+        self.node_iterator = (
+            self.dirs_first_sort
+            if 'dirsfirst' == item_sort
+            else self.git_default_sort
         )
         self.extra_opts = ['-d'] if trees_only else []
         if abbrev:
@@ -82,7 +109,7 @@ class GitLsTree(GitLsTreeNode):
         max_name_length = 0
         max_size_length = 0
         output = []
-        for pre, _, node in RenderTree(self):
+        for pre, _, node in RenderTree(self, childiter=self.node_iterator):
             printed_name = node.name if node.name else node.basename
             classification = node.classify(short=True) if classify else ''
             current_node = (u'%s%s%s' % (pre, printed_name, classification)).encode('utf-8')

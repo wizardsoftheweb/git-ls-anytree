@@ -101,6 +101,14 @@ Equivalent to git-ls-tree --abbrev. Uses the default git short hash of seven cha
         help='Appends ( *@/) to filename per ls -F'
     )
 
+    tree_args.add_argument(
+        '--dirsfirst',
+        dest='item_sort',
+        action='store_const',
+        const='dirsfirst',
+        help='Displays directories (tree, commit) before files (blob)'
+    )
+
     args = parser.parse_args(passed_args)
     if 0 == len(args.patterns):
         args.patterns = None
@@ -110,7 +118,8 @@ Equivalent to git-ls-tree --abbrev. Uses the default git short hash of seven cha
         patterns=args.patterns,
         trees_only=args.trees_only,
         working_dir=args.working_directory,
-        abbrev=args.abbrev if hasattr(args, 'abbrev') else None
+        abbrev=args.abbrev if hasattr(args, 'abbrev') else None,
+        item_sort=args.item_sort
     )
     full_tree.pretty_print(
         name_only=args.name_only,

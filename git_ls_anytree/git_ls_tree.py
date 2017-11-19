@@ -109,7 +109,7 @@ class GitLsTree(GitLsTreeNode):
         max_name_length = 0
         max_size_length = 0
         output = []
-        for pre, _, node in RenderTree(self):
+        for pre, _, node in RenderTree(self, childiter=self.node_iterator):
             printed_name = node.name if node.name else node.basename
             classification = node.classify(short=True) if classify else ''
             current_node = (u'%s%s%s' % (pre, printed_name, classification)).encode('utf-8')

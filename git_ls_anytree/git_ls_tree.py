@@ -17,6 +17,11 @@ class GitLsTree(GitLsTreeNode):
     MINIMUM_ABBREV_JUSTIFICATION = 6
     DEFAULT_ABBREV_LENGTH = 40
 
+    @staticmethod
+    def git_default_sort(items):
+        """Returns the items without any sorting"""
+        return items
+
     def __init__(
             self,
             tree_ish='HEAD',

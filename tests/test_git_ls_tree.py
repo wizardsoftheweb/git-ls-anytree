@@ -87,6 +87,44 @@ class GitDefaultSortTests(GitLsTreeTestBase):
         for index, value in enumerate(output):
             assert(value == self.input[index])
 
+class DirsFirstSortTests(GitLsTreeTestBase):
+
+    blob_input = [
+        dummyTree('y', 'blob'),
+        dummyTree('x', 'blob'),
+        dummyTree('z', 'blob')
+    ]
+
+    blob_name_output = ['x', 'y', 'z']
+
+    not_blob_input = [
+        dummyTree('b', 'tree'),
+        dummyTree('a', 'commit')
+    ]
+
+    not_blob_name_output = ['a', 'b']
+
+    everything_input = blob_input + not_blob_input
+    everything_name_output = not_blob_name_output + blob_name_output
+
+    def setUp(self):
+        self.create_tree_instance()
+
+    def test_sort_blobs_only(self):
+        output = self.tree_instance.dirs_first_sort(self.blob_input)
+        for index, value in enumerate(output):
+            assert(value.name == self.blob_name_output[index])
+
+    def test_sort_not_blobs_only(self):
+        output = self.tree_instance.dirs_first_sort(self.not_blob_input)
+        for index, value in enumerate(output):
+            assert(value.name == self.not_blob_name_output[index])
+
+    def test_sort_everything(self):
+        output = self.tree_instance.dirs_first_sort(self.everything_input)
+        for index, value in enumerate(output):
+            assert(value.name == self.everything_name_output[index])
+
 class QueryTreeIshUnitTests(GitLsTreeTestBase):
     number_of_git_lines = 20
     git_raw_output = """

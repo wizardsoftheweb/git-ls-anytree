@@ -22,6 +22,22 @@ class GitLsTree(GitLsTreeNode):
         """Returns the items without any sorting"""
         return items
 
+    @staticmethod
+    def dirs_first_sort(items):
+        """Returns the items with trees and commits sorted before blobs"""
+        blobs = []
+        not_blobs = []
+        for item in items:
+            if 'blob' == item.item_type:
+                blobs.append(item)
+            else:
+                not_blobs.append(item)
+        sort_key = lambda named_item: named_item.name
+        return (
+            sorted(not_blobs, key=sort_key)
+            + sorted(blobs, key=sort_key)
+        )
+
     def __init__(
             self,
             tree_ish='HEAD',

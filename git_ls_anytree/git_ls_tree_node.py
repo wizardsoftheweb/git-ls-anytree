@@ -154,6 +154,6 @@ class GitLsTreeNode(NodeMixin):
             current_basename = exploded_path.pop(0)
             for potential_parent in self.children:
                 if current_basename == potential_parent.basename:
-                    return potential_parent
+                    return potential_parent.walk_to_parent_node(exploded_path)
                     # print potential_parent
             raise BrokenTreeError(self, current_basename)

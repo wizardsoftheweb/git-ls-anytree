@@ -82,15 +82,18 @@ class WalkToParentNodeUnitTests(unittest.TestCase):
     def setUp(self):
         self.rootNode = GitLsTreeNode()
         setattr(self.rootNode, 'basename', 'root')
-        self.leafNode = GitLsTreeNode(parent=self.rootNode)
+        self.middleNode = GitLsTreeNode(parent=self.rootNode)
+        setattr(self.middleNode, 'basename', 'middle')
+        self.leafNode = GitLsTreeNode(parent=self.middleNode)
         setattr(self.leafNode, 'basename', 'leaf')
 
     def test_base_case(self):
         assert(self.rootNode == self.rootNode.walk_to_parent_node(['file.ext']))
+        assert(self.middleNode == self.middleNode.walk_to_parent_node(['file.ext']))
         assert(self.leafNode == self.leafNode.walk_to_parent_node(['file.ext']))
 
     def test_tree_traversal(self):
-        assert(self.leafNode == self.rootNode.walk_to_parent_node(['leaf', 'file.ext']))
+        assert(self.leafNode == self.rootNode.walk_to_parent_node(['middle', 'leaf', 'file.ext']))
 
     def test_broken_tree_error(self):
         with self.assertRaises(BrokenTreeError) as context_manager:
